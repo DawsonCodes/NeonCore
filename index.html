@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Neon Core is a polished clicker game with upgrades, achievements, prestige, autosave, and glowing sci-fi visuals.">
+  <title>Neon Core — Clicker Deluxe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background layers create the neon sci-fi look. -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+
+  <!-- Top bar contains the game title and control buttons. -->
+  <header class="top-bar">
+    <div>
+      <p class="eyebrow">clicker deluxe</p>
+      <h1 class="logo">NEON<span>CORE</span></h1>
+    </div>
+
+    <nav class="top-controls" aria-label="Game controls">
+      <button id="saveBtn" class="icon-btn" type="button" title="Save now" aria-label="Save now">💾</button>
+      <button id="exportBtn" class="icon-btn" type="button" title="Export save" aria-label="Export save">⤓</button>
+      <button id="importBtn" class="icon-btn" type="button" title="Import save" aria-label="Import save">⤒</button>
+      <button id="muteBtn" class="icon-btn" type="button" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+      <button id="themeBtn" class="icon-btn" type="button" title="Toggle theme" aria-label="Toggle theme">☾</button>
+      <button id="resetBtn" class="icon-btn danger" type="button" title="Reset all progress" aria-label="Reset all progress">⟲</button>
+    </nav>
+  </header>
+
+  <!-- Main game area with score, core button, upgrades, achievements, and stats. -->
+  <main class="game">
+    <!-- Hero panel shows the main score and progress toward prestige. -->
+    <section class="hero-panel" aria-labelledby="scoreHeading">
+      <div class="hero-copy">
+        <p class="eyebrow">reactor status</p>
+        <h2 id="scoreHeading">Build energy. Upgrade the core. Break reality.</h2>
+      </div>
+
+      <div class="score-card">
+        <div class="score-label">ENERGY</div>
+        <div id="score" class="score">0</div>
+        <div class="progress-shell" aria-label="Progress to singularity">
+          <div id="prestigeProgress" class="progress-bar"></div>
+        </div>
+        <p id="prestigeProgressText" class="progress-text">0% to Singularity</p>
+      </div>
+    </section>
+
+    <!-- Live stats update every frame through script.js. -->
+    <section class="stat-strip" aria-label="Live game stats">
+      <article class="mini-stat">
+        <span class="mini-label">Per second</span>
+        <strong id="cps">0/sec</strong>
+      </article>
+      <article class="mini-stat">
+        <span class="mini-label">Per click</span>
+        <strong id="perClick">+1/click</strong>
+      </article>
+      <article class="mini-stat">
+        <span class="mini-label">Multiplier</span>
+        <strong id="multiplier">x1.00</strong>
+      </article>
+      <article class="mini-stat">
+        <span class="mini-label">Critical chance</span>
+        <strong id="critChance">0%</strong>
+      </article>
+    </section>
+
+    <!-- Main grid separates the clickable core from the side information panels. -->
+    <section class="main-grid">
+      <div class="core-card">
+        <section class="core-section" aria-label="Core button area">
+          <button id="coreBtn" class="core-btn" type="button" aria-label="Click the core to earn energy">
+            <span class="core-halo"></span>
+            <span class="core-inner"></span>
+            <span class="core-ring"></span>
+            <span class="core-spark"></span>
+          </button>
+          <div id="floatContainer" class="float-container" aria-hidden="true"></div>
+        </section>
+
+        <div class="boost-card">
+          <div>
+            <p class="boost-title">Neon Surge</p>
+            <p id="surgeText" class="boost-desc">Charge it by clicking, then double your output.</p>
+          </div>
+          <div class="boost-actions">
+            <div class="charge-shell" aria-label="Surge charge">
+              <div id="surgeCharge" class="charge-bar"></div>
+            </div>
+            <button id="surgeBtn" class="surge-btn" type="button" disabled>CHARGING</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-panel" aria-label="Game information">
+        <section class="panel-card singularity-card">
+          <h2 class="section-title">SINGULARITY</h2>
+          <p class="panel-desc">Collapse the core at 100K energy to gain a permanent +10% global multiplier. Energy and upgrades reset, achievements stay.</p>
+          <div class="prestige-info">
+            <span>Singularities <strong id="prestigeCount">0</strong></span>
+            <span>Bonus <strong id="prestigeBonus">x1.00</strong></span>
+          </div>
+          <button id="prestigeBtn" class="prestige-btn" type="button" disabled>
+            <span id="prestigeStatus">Need 100K energy</span>
+          </button>
+        </section>
+
+        <section class="panel-card log-card">
+          <h2 class="section-title">CORE LOG</h2>
+          <ul id="eventLog" class="event-log" aria-live="polite"></ul>
+        </section>
+      </aside>
+    </section>
+
+    <!-- Upgrade cards are generated by JavaScript using the upgrade list. -->
+    <section class="upgrades" aria-labelledby="upgradesHeading">
+      <div class="section-head">
+        <h2 id="upgradesHeading" class="section-title">UPGRADES</h2>
+        <button id="buyModeBtn" class="pill-btn" type="button">Buy 1</button>
+      </div>
+      <div id="upgradeGrid" class="upgrade-grid"></div>
+    </section>
+
+    <!-- Achievement cards are generated by JavaScript using the achievement list. -->
+    <section class="achievements" aria-labelledby="achievementsHeading">
+      <div class="section-head">
+        <h2 id="achievementsHeading" class="section-title">ACHIEVEMENTS</h2>
+        <span id="achievementCount" class="achievement-count">0/0 unlocked</span>
+      </div>
+      <div id="achievementGrid" class="achievement-grid"></div>
+    </section>
+
+    <!-- Extra stats help the player track total progress. -->
+    <section class="stats" aria-labelledby="statsHeading">
+      <h2 id="statsHeading" class="section-title">STATS</h2>
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-label">Total clicks</span><span id="totalClicks" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Total earned</span><span id="totalEarned" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Total spent</span><span id="totalSpent" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Time played</span><span id="timePlayed" class="stat-val">0s</span></div>
+        <div class="stat"><span class="stat-label">Achievement boost</span><span id="achievementBonus" class="stat-val">x1.00</span></div>
+        <div class="stat"><span class="stat-label">Best energy</span><span id="bestScore" class="stat-val">0</span></div>
+      </div>
+    </section>
+
+    <footer class="hint">
+      Tips: press <kbd>space</kbd> to click, <kbd>B</kbd> to switch buy mode, and <kbd>S</kbd> to save.
+    </footer>
+  </main>
+
+  <!-- Hidden import input is opened when the import button is clicked. -->
+  <input id="importFile" class="hidden-file" type="file" accept="application/json,.json">
+  <div id="milestone" class="milestone" role="status" aria-live="polite"></div>
+  <div id="saveIndicator" class="save-indicator">SAVED</div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
