@@ -1,0 +1,234 @@
+/* ==========================================================================
+   ANIMATIONS: reactor idle motion, click feedback, Surge state, the
+   Singularity collapse sequence, toasts, and purchase feedback.
+   Reduced-motion handling lives in base.css and zeroes all of these out.
+   ========================================================================== */
+
+/* Reactor idle state: slow breathing halo, pulsing plasma, rotating rings. */
+.core-halo {
+  animation: breathe 3.5s ease-in-out infinite;
+}
+
+.core-inner {
+  animation: corePulse 2.8s ease-in-out infinite;
+}
+
+.core-ring {
+  animation: ringRotate 8s linear infinite;
+}
+
+.core-ring::after {
+  animation: ringRotate 5s linear infinite reverse;
+}
+
+.core-spark {
+  animation: ringRotate 14s linear infinite reverse;
+}
+
+/* Click feedback: compression plus an expanding pulse ring. */
+.core-btn.clicked .core-inner {
+  animation: coreHit 0.26s ease-out, corePulse 2.8s ease-in-out infinite;
+}
+
+.core-btn.crit-hit .core-inner {
+  animation: critHit 0.34s ease-out, corePulse 2.8s ease-in-out infinite;
+}
+
+.core-pulse.pulse {
+  animation: pulseRing 0.5s ease-out forwards;
+}
+
+.core-btn.crit-hit .core-pulse.pulse {
+  border-color: var(--accent-3);
+  animation: pulseRing 0.6s ease-out forwards;
+}
+
+/* Surge active: hotter, faster reactor and a magenta cast. */
+body.surge-active .core-inner {
+  animation-duration: 1.1s;
+  box-shadow:
+    inset 0 0 52px var(--core-glow-inner),
+    0 0 34px var(--accent-2),
+    0 0 84px color-mix(in srgb, var(--accent-2) 55%, transparent),
+    0 0 140px color-mix(in srgb, var(--core-color) 35%, transparent);
+}
+
+body.surge-active .core-ring {
+  border-color: var(--accent-2);
+  animation-duration: 2.5s;
+}
+
+body.surge-active .core-halo {
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 24%, transparent), transparent 65%);
+  animation-duration: 1.4s;
+}
+
+/* Singularity module shimmer. */
+.singularity-module::after {
+  animation: spin 18s linear infinite;
+}
+
+/* Floating numbers + particles. */
+.float-num {
+  animation: floatUp 1.18s ease-out forwards;
+}
+
+.particle {
+  animation: particleBurst 0.78s ease-out forwards;
+}
+
+/* Upgrade purchase pop. */
+.upgrade.purchased {
+  animation: purchasePop 0.4s ease-out;
+}
+
+/* Toasts. */
+.toast {
+  animation: toastIn 0.28s ease-out;
+}
+
+.toast.toast-out {
+  animation: toastOut 0.22s ease-in forwards;
+}
+
+.toast.toast-bump {
+  animation: toastBump 0.3s ease-out;
+}
+
+/* Singularity collapse sequence: flare implodes, flashes, title appears. */
+.singularity-overlay.active {
+  animation: overlayFlash 2s ease-out forwards;
+}
+
+.singularity-overlay.active .singularity-flare {
+  animation: flareCollapse 2s ease-out forwards;
+}
+
+.singularity-overlay.active .singularity-text {
+  animation: singularityTitle 2s ease-out forwards;
+}
+
+/* Reduced-motion variant: a short gentle fade with no scaling or flashing. */
+.singularity-overlay.active.reduced,
+.singularity-overlay.active.reduced .singularity-flare,
+.singularity-overlay.active.reduced .singularity-text {
+  animation: none;
+}
+
+.singularity-overlay.active.reduced {
+  opacity: 1;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+}
+
+.singularity-overlay.active.reduced .singularity-flare {
+  opacity: 0.25;
+}
+
+.singularity-overlay.active.reduced .singularity-text {
+  opacity: 1;
+}
+
+/* Keyframes -------------------------------------------------------------- */
+@keyframes breathe {
+  0%, 100% { transform: scale(0.92); opacity: 0.65; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+@keyframes corePulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 40px var(--core-glow-inner),
+      0 0 26px var(--core-color),
+      0 0 64px color-mix(in srgb, var(--core-color) 45%, transparent),
+      0 0 110px color-mix(in srgb, var(--accent-2) 18%, transparent);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 56px var(--core-glow-inner),
+      0 0 38px var(--core-color),
+      0 0 88px color-mix(in srgb, var(--core-color) 55%, transparent),
+      0 0 135px color-mix(in srgb, var(--accent-2) 26%, transparent);
+  }
+}
+
+@keyframes coreHit {
+  0% { transform: scale(1); }
+  45% { transform: scale(0.86); }
+  100% { transform: scale(1); }
+}
+
+@keyframes critHit {
+  0% { transform: scale(1); }
+  35% { transform: scale(0.82); }
+  70% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulseRing {
+  0% { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.65); }
+}
+
+@keyframes ringRotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes floatUp {
+  0% { opacity: 0; transform: translate(-50%, 0) scale(0.65); }
+  16% { opacity: 1; transform: translate(-50%, -10px) scale(1.22); }
+  100% { opacity: 0; transform: translate(-50%, -120px) scale(0.88); }
+}
+
+@keyframes particleBurst {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); }
+}
+
+@keyframes purchasePop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.025); border-color: var(--accent); box-shadow: var(--glow); }
+  100% { transform: scale(1); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastOut {
+  to { opacity: 0; transform: translateY(-6px) scale(0.97); }
+}
+
+@keyframes toastBump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+@keyframes overlayFlash {
+  0% { background: transparent; }
+  18% { background: color-mix(in srgb, var(--bg) 88%, transparent); }
+  30% { background: rgba(255, 255, 255, 0.55); }
+  45%, 80% { background: color-mix(in srgb, var(--bg) 82%, transparent); }
+  100% { background: transparent; opacity: 0; }
+}
+
+@keyframes flareCollapse {
+  0% { opacity: 0; transform: scale(1.4); }
+  20% { opacity: 1; transform: scale(0.6); }
+  30% { opacity: 1; transform: scale(0.05); }
+  36% { opacity: 1; transform: scale(1.8); filter: blur(2px); }
+  60% { opacity: 0.5; transform: scale(2.4); }
+  100% { opacity: 0; transform: scale(2.8); }
+}
+
+@keyframes singularityTitle {
+  0%, 30% { opacity: 0; transform: scale(0.85); letter-spacing: 0.5em; }
+  45% { opacity: 1; transform: scale(1); letter-spacing: 0.3em; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}

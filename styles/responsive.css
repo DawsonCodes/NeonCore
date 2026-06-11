@@ -1,0 +1,172 @@
+/* ==========================================================================
+   RESPONSIVE: tablet refinements, the app-like phone layout with bottom
+   navigation, and narrow-landscape handling.
+   Breakpoints: 1024px (tablet), 860px (mobile nav), 640px / 480px (phones).
+   ========================================================================== */
+
+/* Tablet: tighten the two-column dashboard. */
+@media (max-width: 1024px) {
+  .dashboard {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+  }
+
+  .reactor-stage {
+    min-height: 320px;
+  }
+}
+
+/* Mobile: single active section + bottom tab navigation. */
+@media (max-width: 860px) {
+  body {
+    padding: 0.8rem 0.8rem calc(86px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .top-bar {
+    margin-bottom: 0.8rem;
+  }
+
+  /* Header slims down; settings moves to the tab bar. */
+  .ghost-btn-label {
+    display: none;
+  }
+
+  #settingsBtn {
+    display: none;
+  }
+
+  .dashboard {
+    display: block;
+  }
+
+  .tab-panel {
+    display: none;
+  }
+
+  .tab-panel.is-active {
+    display: grid;
+    animation: tabIn 0.22s ease-out;
+  }
+
+  .panel-upgrades.is-active,
+  .panel-achievements.is-active,
+  .panel-stats.is-active {
+    display: block;
+  }
+
+  .mobile-nav {
+    display: flex;
+  }
+
+  .hint {
+    display: none;
+  }
+
+  /* Touch-first sizing. */
+  .reactor-stage {
+    min-height: 300px;
+  }
+
+  .core-btn {
+    width: min(62vw, 250px);
+  }
+
+  .module-row {
+    grid-template-columns: 1fr;
+  }
+
+  .chip {
+    min-width: 0;
+    flex: 1 1 28%;
+  }
+
+  .energy-value {
+    font-size: clamp(2.2rem, 11vw, 3.2rem);
+  }
+
+  /* Notifications sit below the header, full width, above the nav. */
+  .notification-stack {
+    top: 0.6rem;
+    right: 0.6rem;
+    left: 0.6rem;
+    width: auto;
+  }
+
+  /* Settings becomes a full-screen sheet. */
+  .sheet {
+    width: 100vw;
+    border-left: 0;
+  }
+
+  .buy-btn,
+  .surge-btn,
+  .prestige-btn,
+  .action-btn,
+  .danger-btn,
+  .primary-btn {
+    min-height: 3rem;
+  }
+
+  .seg-btn {
+    min-height: 2.5rem;
+  }
+}
+
+@keyframes tabIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Small phones. */
+@media (max-width: 640px) {
+  .achievement-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .prestige-info {
+    grid-template-columns: 1fr;
+  }
+
+  .section-head {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+
+  .chip strong {
+    font-size: 0.88rem;
+  }
+}
+
+/* Narrow landscape phones: keep the reactor reachable without scrolling. */
+@media (max-height: 480px) and (orientation: landscape) and (max-width: 1024px) {
+  body {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .reactor-stage {
+    min-height: 220px;
+  }
+
+  .core-btn {
+    width: min(34vh, 180px);
+  }
+
+  .nav-btn {
+    min-height: 44px;
+  }
+
+  .energy-value {
+    font-size: 2rem;
+    margin-bottom: 0.4rem;
+  }
+}

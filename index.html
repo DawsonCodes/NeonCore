@@ -1,145 +1,134 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Neon Core is a polished clicker game with upgrades, achievements, prestige, autosave, and glowing sci-fi visuals.">
-  <title>Neon Core — Clicker Deluxe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Neon Core is a neon sci-fi reactor clicker with upgrades, achievements, prestige, offline progress, and autosave.">
+  <meta name="theme-color" content="#050812">
+  <title>Neon Core — Reactor Clicker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/layout.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/animations.css">
+  <link rel="stylesheet" href="styles/responsive.css">
 </head>
 <body>
-  <!-- Background layers create the neon sci-fi look. -->
+  <!-- Decorative background layers (theme-aware). -->
   <div class="bg-grid" aria-hidden="true"></div>
   <div class="bg-glow" aria-hidden="true"></div>
-  <div class="scanline" aria-hidden="true"></div>
+  <div class="bg-texture" aria-hidden="true"></div>
 
-  <!-- Top bar contains the game title and control buttons. -->
+  <a class="skip-link" href="#coreBtn">Skip to reactor core</a>
+
   <header class="top-bar">
-    <div>
-      <p class="eyebrow">clicker deluxe</p>
+    <div class="brand">
       <h1 class="logo">NEON<span>CORE</span></h1>
+      <span class="version-badge" id="versionBadge">v0.2.0</span>
     </div>
-
-    <nav class="top-controls" aria-label="Game controls">
-      <button id="saveBtn" class="icon-btn" type="button" title="Save now" aria-label="Save now">💾</button>
-      <button id="exportBtn" class="icon-btn" type="button" title="Export save" aria-label="Export save">⤓</button>
-      <button id="importBtn" class="icon-btn" type="button" title="Import save" aria-label="Import save">⤒</button>
-      <button id="muteBtn" class="icon-btn" type="button" title="Toggle sound" aria-label="Toggle sound">🔊</button>
-      <button id="themeBtn" class="icon-btn" type="button" title="Toggle theme" aria-label="Toggle theme">☾</button>
-      <button id="resetBtn" class="icon-btn danger" type="button" title="Reset all progress" aria-label="Reset all progress">⟲</button>
-    </nav>
+    <div class="top-actions">
+      <span id="saveChip" class="save-chip" aria-hidden="true">Saved</span>
+      <button id="themeBtn" class="ghost-btn" type="button" aria-label="Switch to light theme">
+        <span id="themeBtnIcon" aria-hidden="true">☾</span><span class="ghost-btn-label">Theme</span>
+      </button>
+      <button id="settingsBtn" class="ghost-btn" type="button" aria-haspopup="dialog">
+        <span aria-hidden="true">⚙</span><span class="ghost-btn-label">Settings</span>
+      </button>
+    </div>
   </header>
 
-  <!-- Main game area with score, core button, upgrades, achievements, and stats. -->
-  <main class="game">
-    <!-- Hero panel shows the main score and progress toward prestige. -->
-    <section class="hero-panel" aria-labelledby="scoreHeading">
-      <div class="hero-copy">
-        <p class="eyebrow">reactor status</p>
-        <h2 id="scoreHeading">Build energy. Upgrade the core. Break reality.</h2>
-      </div>
-
-      <div class="score-card">
-        <div class="score-label">ENERGY</div>
-        <div id="score" class="score">0</div>
-        <div class="progress-shell" aria-label="Progress to singularity">
+  <main class="dashboard" id="dashboard">
+    <!-- CORE: energy readout, reactor, Neon Surge, Singularity. -->
+    <section class="tab-panel panel-core is-active" id="tab-core" data-tab="core" aria-label="Reactor core">
+      <div class="energy-block panel">
+        <p class="energy-label">Reactor Energy</p>
+        <p id="score" class="energy-value">0</p>
+        <div class="stat-chips" aria-label="Live reactor stats">
+          <div class="chip"><span class="chip-label">Per click</span><strong id="perClick">+1</strong></div>
+          <div class="chip"><span class="chip-label">Per second</span><strong id="cps">0</strong></div>
+          <div class="chip"><span class="chip-label">Multiplier</span><strong id="multiplier">x1.00</strong></div>
+          <div class="chip"><span class="chip-label">Critical</span><strong id="critChance">0%</strong></div>
+          <div class="chip chip-surge" id="surgeChipWrap"><span class="chip-label">Surge</span><strong id="surgeChip">0%</strong></div>
+        </div>
+        <div class="progress-shell" id="prestigeProgressShell" role="progressbar"
+             aria-label="Progress to Singularity" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
           <div id="prestigeProgress" class="progress-bar"></div>
         </div>
         <p id="prestigeProgressText" class="progress-text">0% to Singularity</p>
       </div>
-    </section>
 
-    <!-- Live stats update every frame through script.js. -->
-    <section class="stat-strip" aria-label="Live game stats">
-      <article class="mini-stat">
-        <span class="mini-label">Per second</span>
-        <strong id="cps">0/sec</strong>
-      </article>
-      <article class="mini-stat">
-        <span class="mini-label">Per click</span>
-        <strong id="perClick">+1/click</strong>
-      </article>
-      <article class="mini-stat">
-        <span class="mini-label">Multiplier</span>
-        <strong id="multiplier">x1.00</strong>
-      </article>
-      <article class="mini-stat">
-        <span class="mini-label">Critical chance</span>
-        <strong id="critChance">0%</strong>
-      </article>
-    </section>
-
-    <!-- Main grid separates the clickable core from the side information panels. -->
-    <section class="main-grid">
-      <div class="core-card">
-        <section class="core-section" aria-label="Core button area">
-          <button id="coreBtn" class="core-btn" type="button" aria-label="Click the core to earn energy">
-            <span class="core-halo"></span>
-            <span class="core-inner"></span>
-            <span class="core-ring"></span>
-            <span class="core-spark"></span>
-          </button>
-          <div id="floatContainer" class="float-container" aria-hidden="true"></div>
-        </section>
-
-        <div class="boost-card">
-          <div>
-            <p class="boost-title">Neon Surge</p>
-            <p id="surgeText" class="boost-desc">Charge it by clicking, then double your output.</p>
-          </div>
-          <div class="boost-actions">
-            <div class="charge-shell" aria-label="Surge charge">
-              <div id="surgeCharge" class="charge-bar"></div>
-            </div>
-            <button id="surgeBtn" class="surge-btn" type="button" disabled>CHARGING</button>
-          </div>
-        </div>
+      <div class="reactor-stage panel" aria-label="Reactor">
+        <button id="coreBtn" class="core-btn" type="button" aria-label="Charge the core — click to generate energy">
+          <span class="core-halo" aria-hidden="true"></span>
+          <span class="core-ring" aria-hidden="true"></span>
+          <span class="core-spark" aria-hidden="true"></span>
+          <span class="core-inner" aria-hidden="true"></span>
+          <span class="core-pulse" id="corePulseRing" aria-hidden="true"></span>
+        </button>
+        <div id="floatContainer" class="float-container" aria-hidden="true"></div>
       </div>
 
-      <aside class="side-panel" aria-label="Game information">
-        <section class="panel-card singularity-card">
-          <h2 class="section-title">SINGULARITY</h2>
-          <p class="panel-desc">Collapse the core at 100K energy to gain a permanent +10% global multiplier. Energy and upgrades reset, achievements stay.</p>
+      <div class="module-row">
+        <section class="surge-module panel" aria-labelledby="surgeTitle">
+          <div class="module-head">
+            <h2 id="surgeTitle" class="module-title surge-title">Neon Surge</h2>
+            <span id="surgeBadge" class="state-badge">Charging</span>
+          </div>
+          <p id="surgeText" class="module-desc">Click the core to build charge, then double all output for 20 seconds.</p>
+          <div class="charge-shell" id="surgeChargeShell" role="progressbar" aria-label="Surge charge"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div id="surgeCharge" class="charge-bar"></div>
+          </div>
+          <button id="surgeBtn" class="surge-btn" type="button" disabled>Charging…</button>
+        </section>
+
+        <section class="singularity-module panel" aria-labelledby="singularityTitle">
+          <div class="module-head">
+            <h2 id="singularityTitle" class="module-title singularity-title">Singularity</h2>
+            <span id="prestigeBadge" class="state-badge">Locked</span>
+          </div>
+          <p class="module-desc">Collapse the core at 100K energy to gain a permanent +10% global multiplier. Energy and upgrades reset — achievements stay.</p>
           <div class="prestige-info">
-            <span>Singularities <strong id="prestigeCount">0</strong></span>
-            <span>Bonus <strong id="prestigeBonus">x1.00</strong></span>
+            <span class="info-tile">Singularities <strong id="prestigeCount">0</strong></span>
+            <span class="info-tile">Permanent bonus <strong id="prestigeBonus">x1.00</strong></span>
           </div>
           <button id="prestigeBtn" class="prestige-btn" type="button" disabled>
             <span id="prestigeStatus">Need 100K energy</span>
           </button>
         </section>
-
-        <section class="panel-card log-card">
-          <h2 class="section-title">CORE LOG</h2>
-          <ul id="eventLog" class="event-log" aria-live="polite"></ul>
-        </section>
-      </aside>
+      </div>
     </section>
 
-    <!-- Upgrade cards are generated by JavaScript using the upgrade list. -->
-    <section class="upgrades" aria-labelledby="upgradesHeading">
+    <!-- UPGRADES -->
+    <section class="tab-panel panel-upgrades" id="tab-upgrades" data-tab="upgrades" aria-labelledby="upgradesHeading">
       <div class="section-head">
-        <h2 id="upgradesHeading" class="section-title">UPGRADES</h2>
-        <button id="buyModeBtn" class="pill-btn" type="button">Buy 1</button>
+        <h2 id="upgradesHeading" class="section-title">Upgrades</h2>
+        <div class="seg" role="group" aria-label="Buy amount">
+          <button id="buyOneBtn" class="seg-btn" type="button" aria-pressed="true">Buy 1</button>
+          <button id="buyMaxBtn" class="seg-btn" type="button" aria-pressed="false">Buy Max</button>
+        </div>
       </div>
       <div id="upgradeGrid" class="upgrade-grid"></div>
     </section>
 
-    <!-- Achievement cards are generated by JavaScript using the achievement list. -->
-    <section class="achievements" aria-labelledby="achievementsHeading">
+    <!-- ACHIEVEMENTS -->
+    <section class="tab-panel panel-achievements" id="tab-achievements" data-tab="achievements" aria-labelledby="achievementsHeading">
       <div class="section-head">
-        <h2 id="achievementsHeading" class="section-title">ACHIEVEMENTS</h2>
-        <span id="achievementCount" class="achievement-count">0/0 unlocked</span>
+        <h2 id="achievementsHeading" class="section-title">Achievements</h2>
+        <span id="achievementCount" class="section-meta">0/0 unlocked</span>
       </div>
+      <p class="section-note">Each unlocked achievement adds +2% global output.</p>
       <div id="achievementGrid" class="achievement-grid"></div>
     </section>
 
-    <!-- Extra stats help the player track total progress. -->
-    <section class="stats" aria-labelledby="statsHeading">
-      <h2 id="statsHeading" class="section-title">STATS</h2>
+    <!-- STATS + CORE LOG -->
+    <section class="tab-panel panel-stats" id="tab-stats" data-tab="stats" aria-labelledby="statsHeading">
+      <div class="section-head">
+        <h2 id="statsHeading" class="section-title">Stats</h2>
+      </div>
       <div class="stat-grid">
         <div class="stat"><span class="stat-label">Total clicks</span><span id="totalClicks" class="stat-val">0</span></div>
         <div class="stat"><span class="stat-label">Total earned</span><span id="totalEarned" class="stat-val">0</span></div>
@@ -148,19 +137,129 @@
         <div class="stat"><span class="stat-label">Achievement boost</span><span id="achievementBonus" class="stat-val">x1.00</span></div>
         <div class="stat"><span class="stat-label">Best energy</span><span id="bestScore" class="stat-val">0</span></div>
       </div>
+      <div class="log-block">
+        <h3 class="section-subtitle">Core Log</h3>
+        <ul id="eventLog" class="event-log"></ul>
+      </div>
     </section>
-
-    <footer class="hint">
-      Tips: press <kbd>space</kbd> to click, <kbd>B</kbd> to switch buy mode, and <kbd>S</kbd> to save.
-    </footer>
   </main>
 
-  <!-- Hidden import input is opened when the import button is clicked. -->
-  <input id="importFile" class="hidden-file" type="file" accept="application/json,.json">
-  <div id="milestone" class="milestone" role="status" aria-live="polite"></div>
-  <div id="saveIndicator" class="save-indicator">SAVED</div>
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <footer class="hint">
+    Tips: press <kbd>Space</kbd> to click, <kbd>B</kbd> to switch buy mode, and <kbd>S</kbd> to save.
+  </footer>
 
-  <script src="script.js"></script>
+  <!-- Mobile bottom navigation (hidden on desktop). -->
+  <nav class="mobile-nav" aria-label="Game sections">
+    <button class="nav-btn is-active" type="button" data-nav="core" aria-current="true">
+      <span class="nav-icon" aria-hidden="true">◉</span><span class="nav-label">Core</span>
+    </button>
+    <button class="nav-btn" type="button" data-nav="upgrades">
+      <span class="nav-icon" aria-hidden="true">⚡</span><span class="nav-label">Upgrades</span>
+    </button>
+    <button class="nav-btn" type="button" data-nav="achievements">
+      <span class="nav-icon" aria-hidden="true">★</span><span class="nav-label">Awards</span>
+    </button>
+    <button class="nav-btn" type="button" data-nav="stats">
+      <span class="nav-icon" aria-hidden="true">≣</span><span class="nav-label">Stats</span>
+    </button>
+    <button class="nav-btn" type="button" id="navSettingsBtn" aria-haspopup="dialog">
+      <span class="nav-icon" aria-hidden="true">⚙</span><span class="nav-label">Settings</span>
+    </button>
+  </nav>
+
+  <!-- Settings sheet -->
+  <dialog id="settingsDialog" class="sheet" aria-labelledby="settingsTitle">
+    <div class="sheet-head">
+      <h2 id="settingsTitle" class="sheet-title">Settings</h2>
+      <button id="settingsCloseBtn" class="ghost-btn" type="button" aria-label="Close settings">✕</button>
+    </div>
+    <div class="sheet-body">
+      <section class="settings-group">
+        <h3 class="settings-heading">Appearance</h3>
+        <fieldset class="theme-picker">
+          <legend class="visually-hidden">Theme</legend>
+          <label class="radio-card">
+            <input type="radio" name="themeChoice" value="dark">
+            <span class="radio-card-body"><strong>Dark</strong><small>Reactor command center</small></span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="themeChoice" value="light">
+            <span class="radio-card-body"><strong>Light</strong><small>Solar research lab</small></span>
+          </label>
+        </fieldset>
+        <label class="switch-row">
+          <span>Reduced animation<small>Tones down motion and particles</small></span>
+          <input id="motionToggle" type="checkbox" role="switch">
+        </label>
+      </section>
+
+      <section class="settings-group">
+        <h3 class="settings-heading">Audio</h3>
+        <label class="switch-row">
+          <span>Sound effects<small>Clicks, purchases, and events</small></span>
+          <input id="soundToggle" type="checkbox" role="switch">
+        </label>
+      </section>
+
+      <section class="settings-group">
+        <h3 class="settings-heading">Data</h3>
+        <p class="save-status">Last saved: <span id="lastSavedText">just now</span></p>
+        <div class="btn-row">
+          <button id="saveNowBtn" class="action-btn" type="button">Save now</button>
+          <button id="exportBtn" class="action-btn" type="button">Export save</button>
+          <button id="importBtn" class="action-btn" type="button">Import save</button>
+        </div>
+        <button id="resetBtn" class="danger-btn" type="button">Reset all progress…</button>
+      </section>
+
+      <section class="settings-group">
+        <h3 class="settings-heading">Keyboard shortcuts</h3>
+        <ul class="shortcut-list">
+          <li><kbd>Space</kbd><span>Click the core</span></li>
+          <li><kbd>B</kbd><span>Toggle Buy 1 / Buy Max</span></li>
+          <li><kbd>S</kbd><span>Save the game</span></li>
+          <li><kbd>Esc</kbd><span>Close panels</span></li>
+        </ul>
+      </section>
+
+      <p class="version-line">Neon Core <span id="appVersionText"></span></p>
+    </div>
+  </dialog>
+
+  <!-- Generic confirmation dialog -->
+  <dialog id="confirmDialog" class="modal" aria-labelledby="confirmTitle">
+    <h2 id="confirmTitle" class="modal-title">Confirm</h2>
+    <p id="confirmMessage" class="modal-text"></p>
+    <div class="btn-row modal-actions">
+      <button id="confirmCancelBtn" class="action-btn" type="button">Cancel</button>
+      <button id="confirmAcceptBtn" class="danger-btn" type="button">Confirm</button>
+    </div>
+  </dialog>
+
+  <!-- Offline progress summary -->
+  <dialog id="offlineDialog" class="modal" aria-labelledby="offlineTitle">
+    <p class="modal-eyebrow">Welcome back</p>
+    <h2 id="offlineTitle" class="modal-title">Offline progress</h2>
+    <p id="offlineSummary" class="modal-text"></p>
+    <p class="modal-note">Offline generation is capped at 2 hours.</p>
+    <div class="btn-row modal-actions">
+      <button id="offlineCloseBtn" class="primary-btn" type="button">Collect</button>
+    </div>
+  </dialog>
+
+  <!-- Notification stack -->
+  <div id="notificationStack" class="notification-stack" role="region" aria-label="Notifications" aria-live="polite"></div>
+
+  <!-- Singularity collapse overlay -->
+  <div id="singularityOverlay" class="singularity-overlay" aria-hidden="true">
+    <div class="singularity-flare"></div>
+    <p class="singularity-text">SINGULARITY <span id="singularityNum"></span></p>
+  </div>
+
+  <!-- Particle layer + hidden import input -->
+  <div id="particleLayer" class="particle-layer" aria-hidden="true"></div>
+  <input id="importFile" class="hidden-file" type="file" accept="application/json,.json">
+
+  <script type="module" src="src/main.js"></script>
 </body>
 </html>
