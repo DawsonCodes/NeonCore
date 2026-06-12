@@ -1,67 +1,85 @@
 # Neon Core
 
-A neon sci-fi reactor clicker for the browser. Charge the core, stack upgrades, trigger Neon Surges, and collapse reality into a Singularity for permanent power.
+A neon sci-fi reactor clicker for the browser. Charge the core, stack tiered upgrades, ride Neon Surges, collapse reality into Singularities — then cross the Event Horizon for permanent power.
 
 **▶ Play now:** https://dawsoncodes.github.io/NeonCore/
 
-> **Status:** alpha — `v0.2.0-alpha.1`. Progression is stable and saves are versioned, but balance and visuals are still evolving.
+> **Status:** alpha — `v0.3.0-alpha.1`. Progression is stable and saves are versioned; balance and visuals keep evolving.
 
 ## Features
 
-- **Reactor clicking** — click (or press `Space`) to generate energy, with satisfying pulse, particle, and floating-number feedback
-- **Seven upgrades** — click amplifiers, passive generators, critical circuits, global multipliers, and cost-reduction tech
-- **Critical clicks** — up to a 60% chance to triple a click
-- **Neon Surge** — charge by clicking, then double all output for 20 seconds
-- **Singularity prestige** — collapse the core at 100K energy for a permanent +10% global multiplier
-- **15 achievements** — each one adds +2% global output
-- **Milestones & Core Log** — major events are celebrated and kept in a recent-history log
-- **Offline progress** — earn passive energy while away (capped at 2 hours)
+- **Reactor clicking** — click (or press `Space`) with satisfying pulse, particle, and floating-number feedback
+- **14 tiered upgrades** in five categories (Core Output, Passive Systems, Neon Surge, Economy, Singularity Tech) that unlock gradually as you progress
+- **Critical clicks** — up to 60% chance, with an upgradeable critical multiplier
+- **Neon Surge** — charge by clicking, unleash a temporary output boost, and keep clicking to *extend* it; upgradeable charge rate, duration, and strength
+- **Singularity prestige** — collapse the core for a permanent +25% global multiplier; the requirement grows with each collapse
+- **Event Horizon** — a second prestige layer: convert your Singularities into permanent Horizon Shards and spend them on five strategic shard upgrades
+- **48 achievements** — each adds +2% global output; collapsible desktop view with recent-unlock preview
+- **Deep stats** — lifetime, session, surge, and prestige stats, grouped and readable
+- **Offline progress** — passive earnings while away (2 h cap, extendable via Temporal Cache)
+- **Save slots** — three local manual slots with rename, restore, per-slot export/import, and automatic backups
 - **Autosave + manual save** — plus JSON export/import for moving progress between browsers
-- **Two themes** — a dark cyberpunk reactor command center and a bright solar-laboratory light mode
+- **Remastered procedural audio** — Web Audio sound design with a master volume slider, throttled so rapid clicking never gets harsh
+- **Two themes** — dark cyberpunk command center and a bright solar-laboratory light mode
 - **Mobile-first layout** — app-like bottom navigation on phones, full dashboard on desktop
-- **Accessibility** — keyboard play, visible focus states, reduced-motion support, screen-reader-friendly notifications
+- **Accessibility** — keyboard play, visible focus, reduced-motion support, screen-reader-friendly notifications
+
+## How progression works
+
+1. **Click the core** to generate energy and buy your first upgrades within seconds.
+2. **Unlock tiers** — new upgrades appear as you hit energy, level, Surge, and prestige milestones.
+3. **Neon Surge** — clicking charges the Surge bar (~1 min of active play); activating it multiplies all output (base ×2 for 20 s). Clicking during a Surge extends it up to +50% of its duration.
+4. **Singularity** — at 500K energy, collapse the core: energy and upgrades reset, you keep achievements/stats, and you gain a permanent +25% global multiplier. Each collapse raises the next requirement ×3.
+5. **Event Horizon** — at 5 Singularities, cross the Horizon: the Singularity layer resets too, but every Singularity from the fifth onward becomes a permanent **Horizon Shard**. Spend shards on Event Lens (+50% output), Star Seed (head-start levels), Gravity Well (cheaper Singularities), Chrono Flux (better Surges), and Temporal Cache (longer offline cap).
+
+Full formulas, pacing targets, and tuning history live in [`docs/BALANCE.md`](docs/BALANCE.md).
 
 ## Controls
 
 | Input | Action |
 | --- | --- |
 | Click / tap the core | Generate energy |
-| `Space` | Click the core |
+| `Space` | Activate the reactor |
+| `Enter` (core focused) | Activate the reactor |
 | `B` | Toggle Buy 1 / Buy Max |
 | `S` | Save the game |
 | `Esc` | Close panels and dialogs |
 
-Buy mode applies to every upgrade card: **Buy 1** purchases a single level, **Buy Max** buys as many levels as you can afford.
+Buy mode applies to every upgrade card: **Buy 1** purchases a single level, **Buy Max** buys as many levels as you can afford. One physical input always equals exactly one reactor activation — holding keys does not farm energy.
+
+## Audio
+
+Sound is fully procedural (Web Audio — no audio files or remote assets). Settings has a sound toggle and a master volume slider; both persist. Rapid clicking is throttled so audio never piles up.
 
 ## Saving
 
-- The game autosaves every 15 seconds, and also saves when the tab is hidden or closed.
-- Saves are stored in your browser's `localStorage` under a versioned key (`neonCoreSave_v3`). Saves from the original alpha (`neonCoreSave_v2` / `neonCoreSave_v1`) are detected and migrated automatically — existing progress is never lost.
-- **Export / Import** lives in *Settings → Data*. Exports are plain JSON files that include the schema version and export timestamp. Imports are validated before they touch your progress, and a backup of your current save is written before a successful import overwrites it.
-- **Reset** wipes all progress behind an explicit confirmation dialog. Interface preferences (theme, sound, reduced animation) are kept.
+- Autosaves every 15 seconds and on tab hide/close; manual save with `S` or *Settings → Data*.
+- Saves use a versioned envelope under `neonCoreSave_v4`. Older saves (`neonCoreSave_v3`, `_v2`, `_v1`) migrate automatically — progress is never lost, and new fields get safe defaults.
+- **Save slots** (*Settings → Save slots*): three local manual slots with naming, timestamps, progress summaries, per-slot export, and import-into-slot. Restoring or importing always backs up your active save first. Slots never leave your browser.
+- **Export / Import** produces plain JSON including the schema version and export timestamp. Invalid files are rejected without touching your progress; exports from every previous alpha remain importable.
+- **Reset** (*Settings → Data*) wipes active progress — including both prestige layers — behind an explicit confirmation. Interface preferences and save slots are kept.
 
 ## Offline progress
 
-While the game is closed you keep earning passive energy (no Surge bonus), up to a cap of **2 hours**. When you return, a summary shows how long you were away and what the reactor generated.
+While the game is closed you earn passive energy (no Surge bonus) up to a **2-hour cap**; the Temporal Cache shard upgrade adds +2 h per rank. A welcome-back summary shows the time away and energy gained.
 
 ## Run locally
 
-The game is plain HTML/CSS/JS with native ES modules — no build step. Because modules require HTTP, serve the folder with any static server:
+Plain HTML/CSS/JS with native ES modules — no build step. Modules require HTTP, so serve the folder with any static server:
 
 ```bash
-# Python
-python3 -m http.server 8080
-# (also available as: npm start)
+python3 -m http.server 8080     # or: npm start
 ```
 
 Then open http://localhost:8080.
 
-## Tests
+## Tests & balance simulation
 
-Gameplay math, formatting, and the save system are covered by Node's built-in test runner — zero dependencies:
+Zero dependencies — both use Node's built-ins:
 
 ```bash
-npm test
+npm test          # unit + regression tests (input, geometry, notifications, economy, saves, slots)
+npm run simulate  # deterministic pacing simulation (active / hybrid / idle strategies)
 ```
 
 ## Project structure
@@ -71,32 +89,34 @@ index.html          App shell
 styles/             tokens, base, layout, components, animations, responsive
 src/
   main.js           Bootstrap + game controller
-  config/           Constants, upgrades, achievements, milestones
+  config/           Constants, upgrades, horizon upgrades, achievements, milestones
   core/             State, pure calculations, actions, game loop
-  systems/          Save/load/migration/import/export, audio
-  ui/               DOM refs, rendering, notifications, effects, settings, events
-  utils/            Formatting & sanitization helpers
+  systems/          Save/migration/slots/import/export, procedural audio
+  ui/               DOM refs, input gate, rendering, notifications, effects, settings, events
+  utils/            Formatting & geometry helpers
+scripts/simulate.js Balance simulation
+docs/BALANCE.md     Formulas, pacing goals, tuning history
 tests/              Node test suite
 ```
 
 ## Accessibility
 
-- Semantic HTML with labeled controls and native `<dialog>` modals
-- Full keyboard support with visible focus states
+- Semantic HTML, labeled controls, and native `<dialog>` modals (focus trapping + Escape for free)
+- Full keyboard support: reactor activation, buy-mode toggle, save, collapsible sections with `aria-expanded`
 - Notifications use polite/assertive live regions; routine autosave feedback stays subtle
-- Honors the system `prefers-reduced-motion` setting, plus an in-game **Reduced animation** toggle
-- Touch targets sized for phones; no hover-only interactions
+- Honors `prefers-reduced-motion` plus an in-game **Reduced animation** toggle (persisted, survives resets)
+- Touch targets sized for phones; no hover-only information; state badges use text, not color alone
 
 ## Deployment
 
-The site is deployed with **GitHub Pages** straight from the repository root — no build output. All asset and module paths are relative, so it works under the `/NeonCore/` subdirectory.
+Deployed with **GitHub Pages** straight from the repository root — no build output. All asset and module paths are relative, so it works under the `/NeonCore/` subdirectory.
 
 ## Roadmap
 
-- More upgrade tiers and a second prestige layer
-- Sound design pass
-- Optional cloud-free save slots
-- More achievements and stats
+- A third late-game prestige concept
+- More Surge interactions and visual set-pieces
+- Optional challenge modifiers
+- Richer Core Log filtering
 
 ## License
 

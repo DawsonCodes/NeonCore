@@ -363,15 +363,9 @@
   text-shadow: var(--glow-gold);
 }
 
-.particle-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  pointer-events: none;
-}
-
 .particle {
-  position: fixed;
+  position: absolute;
+  z-index: 5;
   width: 0.42rem;
   height: 0.42rem;
   border-radius: 50%;
@@ -1151,3 +1145,323 @@ dialog::backdrop {
   text-shadow: 0 0 24px var(--accent-2), 0 0 60px var(--accent-2);
   opacity: 0;
 }
+
+/* ==========================================================================
+   v0.3 additions: upgrade tiers, collapsible sections, Event Horizon,
+   save slots, and the volume slider.
+   ========================================================================== */
+
+/* Upgrade groups ------------------------------------------------------------ */
+.upgrade-groups {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.upgrade-group-title,
+.achievement-group-title {
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.upgrade-teaser {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  padding: 0.8rem 0.9rem;
+}
+
+.upgrade-locked {
+  opacity: 0.62;
+  border-style: dashed;
+}
+
+.upgrade-locked .upg-desc {
+  color: var(--text-dim);
+}
+
+.new-badge {
+  display: inline-block;
+  border: 1px solid color-mix(in srgb, var(--accent-3) 65%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-3) 14%, transparent);
+  color: var(--accent-3);
+  font-family: var(--font-display);
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.45rem;
+  vertical-align: middle;
+}
+
+/* Collapsible sections -------------------------------------------------------- */
+.collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  transition: border-color 0.18s ease, color 0.18s ease;
+}
+
+.collapse-toggle:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.collapse-preview {
+  font-size: 0.95rem;
+}
+
+.collapse-arrow {
+  font-size: 0.9rem;
+  transition: transform 0.2s ease;
+}
+
+.collapse-toggle.is-open .collapse-arrow {
+  transform: rotate(180deg);
+}
+
+.collapse-body {
+  margin-top: 0.9rem;
+}
+
+.achievement-groups {
+  display: grid;
+  gap: 1.2rem;
+}
+
+/* Event Horizon ---------------------------------------------------------------- */
+.horizon-module {
+  position: relative;
+  overflow: hidden;
+}
+
+.horizon-module::after {
+  content: '';
+  position: absolute;
+  inset: -70%;
+  z-index: -1;
+  background: conic-gradient(from 0deg, transparent, color-mix(in srgb, var(--horizon) 14%, transparent), transparent, color-mix(in srgb, var(--accent-2) 8%, transparent), transparent);
+}
+
+.horizon-title {
+  color: var(--horizon);
+}
+
+.horizon-info .info-tile strong {
+  color: var(--horizon);
+}
+
+.horizon-btn {
+  width: 100%;
+  min-height: 2.9rem;
+  margin-top: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--horizon) 48%, transparent);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--horizon);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+}
+
+.horizon-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.horizon-btn.is-ready:not(:disabled),
+.horizon-btn:not(:disabled):hover {
+  background: var(--horizon);
+  color: #fff;
+  box-shadow: var(--glow-violet);
+}
+
+.horizon-shop {
+  margin-top: 1rem;
+}
+
+.horizon-shop-grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.horizon-upgrade {
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--horizon) 30%, transparent);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  padding: 0.9rem;
+}
+
+.horizon-upgrade.maxed {
+  border-style: dashed;
+  opacity: 0.75;
+}
+
+.horizon-upgrade .upg-name {
+  font-size: 0.88rem;
+}
+
+.horizon-upgrade-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.rank-pips {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+.rank-pip {
+  width: 0.65rem;
+  height: 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--horizon) 55%, transparent);
+  border-radius: 50%;
+}
+
+.rank-pip.filled {
+  background: var(--horizon);
+  box-shadow: var(--glow-violet);
+}
+
+.horizon-buy {
+  min-height: 2.3rem;
+  min-width: 4.5rem;
+  justify-content: center;
+  color: var(--horizon);
+}
+
+.horizon-buy:hover:not(:disabled) {
+  background: var(--horizon);
+  color: #fff;
+  box-shadow: var(--glow-violet);
+}
+
+/* Save slots --------------------------------------------------------------------- */
+.slot-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.slot-card {
+  display: grid;
+  gap: 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  padding: 0.8rem;
+}
+
+.slot-empty {
+  border-style: dashed;
+}
+
+.slot-name {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.45rem 0.6rem;
+}
+
+.slot-name-empty {
+  color: var(--text-faded);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.slot-summary {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+.slot-meta {
+  color: var(--text-faded);
+  font-size: 0.78rem;
+}
+
+.slot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.slot-actions .action-btn,
+.slot-actions .danger-btn {
+  min-height: 2.2rem;
+  padding: 0 0.7rem;
+  font-size: 0.62rem;
+}
+
+.settings-note {
+  color: var(--text-faded);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+/* Volume slider --------------------------------------------------------------------- */
+.volume-row input[type="range"] {
+  appearance: none;
+  width: 9rem;
+  height: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  cursor: pointer;
+}
+
+.volume-row input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--surface-hi);
+  box-shadow: var(--glow);
+}
+
+.volume-row input[type="range"]::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--surface-hi);
+  box-shadow: var(--glow);
+}
+
+/* Notification accents for new types ------------------------------------------------- */
+.toast-horizon { border-color: var(--horizon); box-shadow: var(--glow-violet); }
+.toast-horizon .toast-icon { color: var(--horizon); }
+.toast-unlock { border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
+.toast-unlock .toast-icon { color: var(--accent); }
+.event-log li.log-horizon { border-left-color: var(--horizon); }
+.event-log li.log-unlock { border-left-color: var(--accent); }

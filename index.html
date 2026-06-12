@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="Neon Core is a neon sci-fi reactor clicker with upgrades, achievements, prestige, offline progress, and autosave.">
+  <meta name="description" content="Neon Core is a neon sci-fi reactor clicker with tiered upgrades, achievements, two prestige layers, offline progress, and autosave.">
   <meta name="theme-color" content="#050812">
   <title>Neon Core — Reactor Clicker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +27,7 @@
   <header class="top-bar">
     <div class="brand">
       <h1 class="logo">NEON<span>CORE</span></h1>
-      <span class="version-badge" id="versionBadge">v0.2.0</span>
+      <span class="version-badge" id="versionBadge"></span>
     </div>
     <div class="top-actions">
       <span id="saveChip" class="save-chip" aria-hidden="true">Saved</span>
@@ -41,7 +41,7 @@
   </header>
 
   <main class="dashboard" id="dashboard">
-    <!-- CORE: energy readout, reactor, Neon Surge, Singularity. -->
+    <!-- CORE: energy readout, reactor, Neon Surge, Singularity, Event Horizon. -->
     <section class="tab-panel panel-core is-active" id="tab-core" data-tab="core" aria-label="Reactor core">
       <div class="energy-block panel">
         <p class="energy-label">Reactor Energy</p>
@@ -77,7 +77,7 @@
             <h2 id="surgeTitle" class="module-title surge-title">Neon Surge</h2>
             <span id="surgeBadge" class="state-badge">Charging</span>
           </div>
-          <p id="surgeText" class="module-desc">Click the core to build charge, then double all output for 20 seconds.</p>
+          <p id="surgeText" class="module-desc">Click the core to build charge, then unleash a temporary output boost. Keep clicking during a Surge to extend it.</p>
           <div class="charge-shell" id="surgeChargeShell" role="progressbar" aria-label="Surge charge"
                aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div id="surgeCharge" class="charge-bar"></div>
@@ -90,7 +90,7 @@
             <h2 id="singularityTitle" class="module-title singularity-title">Singularity</h2>
             <span id="prestigeBadge" class="state-badge">Locked</span>
           </div>
-          <p class="module-desc">Collapse the core at 100K energy to gain a permanent +10% global multiplier. Energy and upgrades reset — achievements stay.</p>
+          <p id="prestigeDesc" class="module-desc">Collapse the core for a permanent +25% global multiplier. Energy and upgrades reset — achievements, stats, and Horizon progress stay.</p>
           <div class="prestige-info">
             <span class="info-tile">Singularities <strong id="prestigeCount">0</strong></span>
             <span class="info-tile">Permanent bonus <strong id="prestigeBonus">x1.00</strong></span>
@@ -100,6 +100,22 @@
           </button>
         </section>
       </div>
+
+      <section class="horizon-module panel" id="horizonModule" hidden aria-labelledby="horizonTitle">
+        <div class="module-head">
+          <h2 id="horizonTitle" class="module-title horizon-title">Event Horizon</h2>
+          <span id="horizonBadge" class="state-badge">Locked</span>
+        </div>
+        <p id="horizonDesc" class="module-desc">Collapse spacetime itself. Converts your Singularities into permanent Horizon Shards and resets the Singularity layer.</p>
+        <div class="prestige-info horizon-info">
+          <span class="info-tile">Horizon Shards <strong id="shardCount">0</strong></span>
+          <span class="info-tile">Crossings <strong id="horizonCount">0</strong></span>
+        </div>
+        <button id="horizonBtn" class="horizon-btn" type="button" disabled>
+          <span id="horizonStatus">Reach 5 Singularities</span>
+        </button>
+        <div id="horizonShop" class="horizon-shop" aria-label="Horizon Shard upgrades"></div>
+      </section>
     </section>
 
     <!-- UPGRADES -->
@@ -111,7 +127,7 @@
           <button id="buyMaxBtn" class="seg-btn" type="button" aria-pressed="false">Buy Max</button>
         </div>
       </div>
-      <div id="upgradeGrid" class="upgrade-grid"></div>
+      <div id="upgradeGrid" class="upgrade-groups"></div>
     </section>
 
     <!-- ACHIEVEMENTS -->
@@ -120,8 +136,14 @@
         <h2 id="achievementsHeading" class="section-title">Achievements</h2>
         <span id="achievementCount" class="section-meta">0/0 unlocked</span>
       </div>
-      <p class="section-note">Each unlocked achievement adds +2% global output.</p>
-      <div id="achievementGrid" class="achievement-grid"></div>
+      <button id="achievementToggle" class="collapse-toggle" type="button" aria-expanded="false" aria-controls="achievementBody">
+        <span id="achievementPreview" class="collapse-preview">No achievements unlocked yet.</span>
+        <span class="collapse-arrow" aria-hidden="true">▾</span>
+      </button>
+      <div id="achievementBody" class="collapse-body" hidden>
+        <p class="section-note">Each unlocked achievement adds +2% global output.</p>
+        <div id="achievementGrid" class="achievement-groups"></div>
+      </div>
     </section>
 
     <!-- STATS + CORE LOG -->
@@ -129,14 +151,45 @@
       <div class="section-head">
         <h2 id="statsHeading" class="section-title">Stats</h2>
       </div>
+
+      <h3 class="section-subtitle">Reactor</h3>
       <div class="stat-grid">
         <div class="stat"><span class="stat-label">Total clicks</span><span id="totalClicks" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Critical hits</span><span id="totalCrits" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Biggest click</span><span id="biggestClick" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Best energy</span><span id="bestScore" class="stat-val">0</span></div>
         <div class="stat"><span class="stat-label">Total earned</span><span id="totalEarned" class="stat-val">0</span></div>
         <div class="stat"><span class="stat-label">Total spent</span><span id="totalSpent" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Time played</span><span id="timePlayed" class="stat-val">0s</span></div>
-        <div class="stat"><span class="stat-label">Achievement boost</span><span id="achievementBonus" class="stat-val">x1.00</span></div>
-        <div class="stat"><span class="stat-label">Best energy</span><span id="bestScore" class="stat-val">0</span></div>
       </div>
+
+      <h3 class="section-subtitle">Generation</h3>
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-label">Passive output</span><span id="statEps" class="stat-val">0/s</span></div>
+        <div class="stat"><span class="stat-label">Best passive</span><span id="statBestEps" class="stat-val">0/s</span></div>
+        <div class="stat"><span class="stat-label">Offline earned</span><span id="statOffline" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Upgrades owned</span><span id="statUpgrades" class="stat-val">0</span></div>
+      </div>
+
+      <h3 class="section-subtitle">Surge &amp; Prestige</h3>
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-label">Surges used</span><span id="statSurges" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Time in Surge</span><span id="statSurgeTime" class="stat-val">0s</span></div>
+        <div class="stat"><span class="stat-label">Singularities</span><span id="statPrestige" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Lifetime collapses</span><span id="statPrestigeTotal" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Horizon crossings</span><span id="statHorizons" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Lifetime shards</span><span id="statShardsTotal" class="stat-val">0</span></div>
+      </div>
+
+      <h3 class="section-subtitle">Records</h3>
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-label">Time played</span><span id="timePlayed" class="stat-val">0s</span></div>
+        <div class="stat"><span class="stat-label">This session</span><span id="sessionTime" class="stat-val">0s</span></div>
+        <div class="stat"><span class="stat-label">Achievement boost</span><span id="achievementBonus" class="stat-val">x1.00</span></div>
+        <div class="stat"><span class="stat-label">Manual saves</span><span id="statManualSaves" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Exports</span><span id="statExports" class="stat-val">0</span></div>
+        <div class="stat"><span class="stat-label">Imports</span><span id="statImports" class="stat-val">0</span></div>
+      </div>
+
       <div class="log-block">
         <h3 class="section-subtitle">Core Log</h3>
         <ul id="eventLog" class="event-log"></ul>
@@ -199,6 +252,10 @@
           <span>Sound effects<small>Clicks, purchases, and events</small></span>
           <input id="soundToggle" type="checkbox" role="switch">
         </label>
+        <label class="switch-row volume-row">
+          <span>Volume<small>Master loudness</small></span>
+          <input id="volumeSlider" type="range" min="0" max="100" step="5" value="70">
+        </label>
       </section>
 
       <section class="settings-group">
@@ -210,12 +267,19 @@
           <button id="importBtn" class="action-btn" type="button">Import save</button>
         </div>
         <button id="resetBtn" class="danger-btn" type="button">Reset all progress…</button>
+        <p class="settings-note">Reset wipes active progress (including prestige layers) but keeps interface preferences and save slots.</p>
+      </section>
+
+      <section class="settings-group">
+        <h3 class="settings-heading">Save slots</h3>
+        <p class="settings-note">Manual local backups, separate from the autosave. Stored only in this browser.</p>
+        <div id="slotList" class="slot-list"></div>
       </section>
 
       <section class="settings-group">
         <h3 class="settings-heading">Keyboard shortcuts</h3>
         <ul class="shortcut-list">
-          <li><kbd>Space</kbd><span>Click the core</span></li>
+          <li><kbd>Space</kbd><span>Activate the reactor</span></li>
           <li><kbd>B</kbd><span>Toggle Buy 1 / Buy Max</span></li>
           <li><kbd>S</kbd><span>Save the game</span></li>
           <li><kbd>Esc</kbd><span>Close panels</span></li>
@@ -241,7 +305,7 @@
     <p class="modal-eyebrow">Welcome back</p>
     <h2 id="offlineTitle" class="modal-title">Offline progress</h2>
     <p id="offlineSummary" class="modal-text"></p>
-    <p class="modal-note">Offline generation is capped at 2 hours.</p>
+    <p id="offlineCapNote" class="modal-note">Offline generation is capped at 2 hours.</p>
     <div class="btn-row modal-actions">
       <button id="offlineCloseBtn" class="primary-btn" type="button">Collect</button>
     </div>
@@ -250,14 +314,13 @@
   <!-- Notification stack -->
   <div id="notificationStack" class="notification-stack" role="region" aria-label="Notifications" aria-live="polite"></div>
 
-  <!-- Singularity collapse overlay -->
+  <!-- Prestige collapse overlay (Singularity + Event Horizon) -->
   <div id="singularityOverlay" class="singularity-overlay" aria-hidden="true">
     <div class="singularity-flare"></div>
-    <p class="singularity-text">SINGULARITY <span id="singularityNum"></span></p>
+    <p class="singularity-text" id="singularityLabel"></p>
   </div>
 
-  <!-- Particle layer + hidden import input -->
-  <div id="particleLayer" class="particle-layer" aria-hidden="true"></div>
+  <!-- Hidden import input -->
   <input id="importFile" class="hidden-file" type="file" accept="application/json,.json">
 
   <script type="module" src="src/main.js"></script>

@@ -26,7 +26,6 @@ export const el = {
   core: $('coreBtn'),
   corePulseRing: $('corePulseRing'),
   floatContainer: $('floatContainer'),
-  particleLayer: $('particleLayer'),
 
   // Surge
   surgeBtn: $('surgeBtn'),
@@ -39,10 +38,21 @@ export const el = {
   prestigeBtn: $('prestigeBtn'),
   prestigeStatus: $('prestigeStatus'),
   prestigeBadge: $('prestigeBadge'),
+  prestigeDesc: $('prestigeDesc'),
   prestigeCount: $('prestigeCount'),
   prestigeBonus: $('prestigeBonus'),
   singularityOverlay: $('singularityOverlay'),
-  singularityNum: $('singularityNum'),
+  singularityLabel: $('singularityLabel'),
+
+  // Event Horizon
+  horizonModule: $('horizonModule'),
+  horizonBadge: $('horizonBadge'),
+  horizonDesc: $('horizonDesc'),
+  horizonBtn: $('horizonBtn'),
+  horizonStatus: $('horizonStatus'),
+  horizonShop: $('horizonShop'),
+  shardCount: $('shardCount'),
+  horizonCount: $('horizonCount'),
 
   // Upgrades
   upgradeGrid: $('upgradeGrid'),
@@ -52,14 +62,33 @@ export const el = {
   // Achievements
   achievementGrid: $('achievementGrid'),
   achievementCount: $('achievementCount'),
+  achievementToggle: $('achievementToggle'),
+  achievementPreview: $('achievementPreview'),
+  achievementBody: $('achievementBody'),
 
   // Stats + log
   totalClicks: $('totalClicks'),
+  totalCrits: $('totalCrits'),
+  biggestClick: $('biggestClick'),
+  bestScore: $('bestScore'),
   totalEarned: $('totalEarned'),
   totalSpent: $('totalSpent'),
+  statEps: $('statEps'),
+  statBestEps: $('statBestEps'),
+  statOffline: $('statOffline'),
+  statUpgrades: $('statUpgrades'),
+  statSurges: $('statSurges'),
+  statSurgeTime: $('statSurgeTime'),
+  statPrestige: $('statPrestige'),
+  statPrestigeTotal: $('statPrestigeTotal'),
+  statHorizons: $('statHorizons'),
+  statShardsTotal: $('statShardsTotal'),
   timePlayed: $('timePlayed'),
+  sessionTime: $('sessionTime'),
   achievementBonus: $('achievementBonus'),
-  bestScore: $('bestScore'),
+  statManualSaves: $('statManualSaves'),
+  statExports: $('statExports'),
+  statImports: $('statImports'),
   eventLog: $('eventLog'),
 
   // Navigation
@@ -74,12 +103,14 @@ export const el = {
   themeRadios: [...document.querySelectorAll('input[name="themeChoice"]')],
   motionToggle: $('motionToggle'),
   soundToggle: $('soundToggle'),
+  volumeSlider: $('volumeSlider'),
   lastSavedText: $('lastSavedText'),
   saveNowBtn: $('saveNowBtn'),
   exportBtn: $('exportBtn'),
   importBtn: $('importBtn'),
   importFile: $('importFile'),
   resetBtn: $('resetBtn'),
+  slotList: $('slotList'),
   appVersionText: $('appVersionText'),
 
   // Dialogs
@@ -90,6 +121,7 @@ export const el = {
   confirmCancelBtn: $('confirmCancelBtn'),
   offlineDialog: $('offlineDialog'),
   offlineSummary: $('offlineSummary'),
+  offlineCapNote: $('offlineCapNote'),
   offlineCloseBtn: $('offlineCloseBtn'),
 
   // Notifications
