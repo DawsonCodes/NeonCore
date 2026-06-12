@@ -1,12 +1,17 @@
 // Animation and particle effects: core feedback, floating numbers, Surge
-// visuals, and the Singularity collapse sequence. All effects respect both
+// visuals, and the prestige collapse sequences. All effects respect both
 // the system reduced-motion preference and the in-game setting.
+//
+// Every click effect lives in the reactor stage's own coordinate space and
+// is clamped by effectPosition(), so effects can never appear in unrelated
+// parts of the page (the v0.2 misplaced floating-number bug).
 
 import { el } from './dom.js';
 import { fmt } from '../utils/format.js';
+import { effectPosition } from '../utils/geometry.js';
 
-const MAX_PARTICLES = 48;
-const MAX_FLOATS = 20;
+export const MAX_PARTICLES = 48;
+export const MAX_FLOATS = 20;
 
 const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -41,24 +46,18 @@ export function pulseCore(critical = false) {
   }
 }
 
-// Creates the floating +energy text near the click location.
+// Resolves a safe stage-relative position for a click effect.
+function stagePosition(event) {
+  const rect = el.floatContainer.getBoundingClientRect();
+  return { rect, ...effectPosition(event, rect) };
+}
+
+// Creates the floating +energy text near the activation point.
 export function spawnFloatNumber(amount, event, critical = false) {
-  const containerRect = el.floatContainer.getBoundingClientRect();
-  const coreRect = el.core.getBoundingClientRect();
+  const { x, y } = stagePosition(event);
 
-  let x;
-  let y;
-
-  if (event && Number.isFinite(event.clientX)) {
-    x = event.clientX - containerRect.left;
-    y = event.clientY - containerRect.top;
-  } else {
-    x = coreRect.left + coreRect.width / 2 - containerRect.left;
-    y = coreRect.top + coreRect.height / 2 - containerRect.top;
-  }
-
-  while (el.floatContainer.children.length >= MAX_FLOATS) {
-    el.floatContainer.firstElementChild.remove();
+  while (el.floatContainer.querySelectorAll('.float-num').length >= MAX_FLOATS) {
+    el.floatContainer.querySelector('.float-num').remove();
   }
 
   const span = document.createElement('span');
@@ -70,25 +69,26 @@ export function spawnFloatNumber(amount, event, critical = false) {
   setTimeout(() => span.remove(), 1200);
 }
 
-// Spawns a small particle burst from the click point. Particle count is
-// capped globally so rapid clicking can never build up endless DOM nodes.
+// Spawns a small particle burst from the activation point. Particles share
+// the stage coordinate space and are capped so rapid clicking can never
+// build up endless DOM nodes.
 export function spawnParticles(event, critical = false) {
   if (shouldReduceMotion()) return;
-  if (el.particleLayer.children.length >= MAX_PARTICLES) return;
 
-  const coreRect = el.core.getBoundingClientRect();
-  const centerX = event?.clientX ?? coreRect.left + coreRect.width / 2;
-  const centerY = event?.clientY ?? coreRect.top + coreRect.height / 2;
-  const count = critical ? 10 : 7;
+  const existing = el.floatContainer.querySelectorAll('.particle').length;
+  if (existing >= MAX_PARTICLES) return;
+
+  const { x, y } = stagePosition(event);
+  const count = Math.min(critical ? 10 : 7, MAX_PARTICLES - existing);
 
   for (let i = 0; i < count; i++) {
     const particle = document.createElement('span');
     particle.className = critical ? 'particle particle-crit' : 'particle';
-    particle.style.left = `${centerX}px`;
-    particle.style.top = `${centerY}px`;
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
     particle.style.setProperty('--dx', `${Math.random() * 120 - 60}px`);
     particle.style.setProperty('--dy', `${Math.random() * -95 - 20}px`);
-    el.particleLayer.appendChild(particle);
+    el.floatContainer.appendChild(particle);
     setTimeout(() => particle.remove(), 800);
   }
 }
@@ -102,26 +102,40 @@ export function flashUpgradeCard(id) {
   card.classList.add('purchased');
 }
 
-// Toggles the stronger reactor visuals while Neon Surge is running.
+// Toggles the stronger reactor visuals while Neon Surge is running, and a
+// readiness shimmer once the charge is full.
 export function setSurgeVisual(active) {
   document.body.classList.toggle('surge-active', active);
 }
 
-// Plays the Singularity collapse sequence. Non-blocking: the overlay ignores
+export function setSurgeReadyVisual(ready) {
+  document.body.classList.toggle('surge-ready', ready);
+}
+
+// Plays a prestige collapse sequence. Non-blocking: the overlay ignores
 // pointer events and removes itself when finished. Reduced-motion users get
 // a brief, gentle fade instead of the full collapse.
-export function playSingularity(count) {
-  el.singularityNum.textContent = fmt(count);
+function playCollapse(label, variant, reducedDuration, fullDuration) {
+  el.singularityLabel.textContent = label;
   const reduced = shouldReduceMotion();
   const overlay = el.singularityOverlay;
 
-  overlay.classList.remove('active', 'reduced');
+  overlay.classList.remove('active', 'reduced', 'variant-horizon');
   void overlay.offsetWidth;
   overlay.classList.add('active');
+  if (variant === 'horizon') overlay.classList.add('variant-horizon');
   if (reduced) overlay.classList.add('reduced');
 
   clearTimeout(overlay._timer);
   overlay._timer = setTimeout(() => {
-    overlay.classList.remove('active', 'reduced');
-  }, reduced ? 900 : 2000);
+    overlay.classList.remove('active', 'reduced', 'variant-horizon');
+  }, reduced ? reducedDuration : fullDuration);
+}
+
+export function playSingularity(count) {
+  playCollapse(`SINGULARITY ${fmt(count)}`, 'singularity', 900, 2000);
+}
+
+export function playHorizon(shards) {
+  playCollapse(`EVENT HORIZON +${fmt(shards)}◆`, 'horizon', 1000, 2600);
 }

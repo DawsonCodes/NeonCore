@@ -232,3 +232,98 @@ body.surge-active .core-halo {
   85% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* ==========================================================================
+   v0.3 additions: surge-ready shimmer, surge extension feedback, and the
+   Event Horizon collapse variant.
+   ========================================================================== */
+
+/* Reactor hints that Surge is ready: faster ring + magenta tint pulses. */
+body.surge-ready .core-ring {
+  border-color: var(--accent-2);
+  animation-duration: 4s;
+}
+
+body.surge-ready .surge-btn:not(:disabled) {
+  animation: readyPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes readyPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 45, 149, 0); }
+  50% { box-shadow: var(--glow-pink); }
+}
+
+/* Brief flash on the charge bar when a click extends an active Surge. */
+.charge-shell.extended .charge-bar {
+  animation: chargeFlash 0.3s ease-out;
+}
+
+@keyframes chargeFlash {
+  0% { filter: brightness(1.9); }
+  100% { filter: brightness(1); }
+}
+
+/* Event Horizon collapse: deeper, violet, slightly longer than Singularity. */
+.singularity-overlay.variant-horizon .singularity-flare {
+  background: radial-gradient(circle, #fff 0%, var(--horizon) 30%, #1a0533 60%, transparent 75%);
+}
+
+.singularity-overlay.variant-horizon .singularity-text {
+  text-shadow: 0 0 24px var(--horizon), 0 0 60px var(--horizon);
+}
+
+.singularity-overlay.variant-horizon.active {
+  animation: overlayFlashHorizon 2.6s ease-out forwards;
+}
+
+.singularity-overlay.variant-horizon.active .singularity-flare {
+  animation: flareCollapseHorizon 2.6s ease-out forwards;
+}
+
+.singularity-overlay.variant-horizon.active .singularity-text {
+  animation: singularityTitle 2.6s ease-out forwards;
+}
+
+@keyframes overlayFlashHorizon {
+  0% { background: transparent; }
+  16% { background: color-mix(in srgb, #0a0118 90%, transparent); }
+  32% { background: rgba(236, 222, 255, 0.6); }
+  46%, 82% { background: color-mix(in srgb, #0a0118 86%, transparent); }
+  100% { background: transparent; opacity: 0; }
+}
+
+@keyframes flareCollapseHorizon {
+  0% { opacity: 0; transform: scale(1.6); }
+  22% { opacity: 1; transform: scale(0.5); }
+  34% { opacity: 1; transform: scale(0.03); }
+  40% { opacity: 1; transform: scale(2.1); filter: blur(3px); }
+  64% { opacity: 0.5; transform: scale(2.7) rotate(8deg); }
+  100% { opacity: 0; transform: scale(3.1) rotate(12deg); }
+}
+
+/* Reduced-motion variant reuses the gentle fade from the base overlay. */
+.singularity-overlay.variant-horizon.active.reduced,
+.singularity-overlay.variant-horizon.active.reduced .singularity-flare,
+.singularity-overlay.variant-horizon.active.reduced .singularity-text {
+  animation: none;
+}
+
+/* Settings sheet slide-in. */
+.sheet[open] {
+  animation: sheetIn 0.26s ease-out;
+}
+
+@keyframes sheetIn {
+  from { transform: translateX(28px); opacity: 0.4; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Collapse body reveal. */
+.collapse-body:not([hidden]) {
+  animation: collapseIn 0.22s ease-out;
+}
+
+@keyframes collapseIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,14 +1,12 @@
-// Unified notification manager: a single queue handles toasts for every
-// event category, prevents duplicate spam, keeps important messages from
-// being buried by routine ones, and mirrors entries into the Core Log.
+// DOM layer of the notification system. Queue/dedupe/timer behavior lives
+// in notification-core.js; this file renders toasts, mirrors important
+// events into the Core Log, and handles the subtle autosave chip.
 
 import { el } from './dom.js';
 import { escapeHTML } from '../utils/format.js';
+import { NotificationQueue, PRIORITY } from './notification-core.js';
 
-const MAX_VISIBLE = 3;
-const MAX_LOG_ENTRIES = 8;
-
-const PRIORITY = { low: 0, normal: 1, high: 2 };
+const MAX_LOG_ENTRIES = 10;
 
 const TYPE_META = {
   info: { icon: 'ℹ', label: 'Info' },
@@ -20,70 +18,17 @@ const TYPE_META = {
   achievement: { icon: '★', label: 'Achievement' },
   milestone: { icon: '◆', label: 'Milestone' },
   singularity: { icon: '◉', label: 'Singularity' },
-  surge: { icon: '⚡', label: 'Neon Surge' }
+  horizon: { icon: '⌾', label: 'Event Horizon' },
+  surge: { icon: '⚡', label: 'Neon Surge' },
+  unlock: { icon: '▲', label: 'Unlocked' }
 };
-
-const DEFAULT_DURATION = { low: 2400, normal: 3800, high: 5200 };
-
-const visible = [];
-const pending = [];
 
 function meta(type) {
   return TYPE_META[type] || TYPE_META.info;
 }
 
-// Shows a notification. Options:
-//   type: one of TYPE_META keys
-//   title: optional bold heading (defaults to the type label for high priority)
-//   message: body text
-//   priority: 'low' | 'normal' | 'high'
-//   duration: ms before auto-dismiss
-//   dedupeKey: matching visible toasts are refreshed instead of duplicated
-//   log: also append to the Core Log (default true except low priority)
-export function notify({
-  type = 'info',
-  title = '',
-  message,
-  priority = 'normal',
-  duration,
-  dedupeKey,
-  log
-} = {}) {
-  const key = dedupeKey ?? `${type}:${title}:${message}`;
-
-  const existing = visible.find(item => item.key === key);
-  if (existing) {
-    restartTimer(existing);
-    bumpToast(existing.node);
-  } else {
-    const item = {
-      key,
-      type,
-      title,
-      message,
-      priority: PRIORITY[priority] ?? 1,
-      duration: duration ?? DEFAULT_DURATION[priority] ?? DEFAULT_DURATION.normal
-    };
-    if (visible.length < MAX_VISIBLE) {
-      show(item);
-    } else if (item.priority >= PRIORITY.normal) {
-      // Important messages wait in line instead of being dropped; while the
-      // stack is full, low-priority messages are skipped entirely.
-      pending.push(item);
-      pending.sort((a, b) => b.priority - a.priority);
-    }
-  }
-
-  if (log ?? (PRIORITY[priority] ?? 1) >= PRIORITY.normal) {
-    addLog(title ? `${title}: ${message}` : message, type);
-  }
-}
-
-function show(item) {
-  const node = document.createElement('div');
-  node.className = `toast toast-${item.type}`;
-  if (item.priority >= PRIORITY.high) node.setAttribute('role', 'alert');
-  node.innerHTML = `
+function toastBodyHTML(item) {
+  return `
     <span class="toast-icon" aria-hidden="true">${meta(item.type).icon}</span>
     <div class="toast-body">
       ${item.title ? `<strong class="toast-title">${escapeHTML(item.title)}</strong>` : ''}
@@ -91,36 +36,63 @@ function show(item) {
     </div>
     <button class="toast-close" type="button" aria-label="Dismiss notification">✕</button>
   `;
-  node.querySelector('.toast-close').addEventListener('click', () => dismiss(item));
-
-  item.node = node;
-  visible.push(item);
-  el.notificationStack.appendChild(node);
-  restartTimer(item);
 }
 
-function restartTimer(item) {
-  clearTimeout(item.timer);
-  item.timer = setTimeout(() => dismiss(item), item.duration);
+function applyToastClass(node, item) {
+  node.className = `toast toast-${item.type}`;
+  if (item.priority >= PRIORITY.high) {
+    node.setAttribute('role', 'alert');
+  } else {
+    node.removeAttribute('role');
+  }
 }
 
-function bumpToast(node) {
-  node.classList.remove('toast-bump');
-  void node.offsetWidth;
-  node.classList.add('toast-bump');
+const queue = new NotificationQueue({
+  maxVisible: 3,
+  schedule: (fn, ms) => setTimeout(fn, ms),
+  cancel: handle => clearTimeout(handle),
+  renderer: {
+    show(item) {
+      const node = document.createElement('div');
+      applyToastClass(node, item);
+      node.innerHTML = toastBodyHTML(item);
+      node.querySelector('.toast-close').addEventListener('click', () => queue.dismiss(item.key));
+      item.node = node;
+      el.notificationStack.appendChild(node);
+    },
+    update(item) {
+      // Replace stale content in place and pulse so the change is visible.
+      applyToastClass(item.node, item);
+      item.node.innerHTML = toastBodyHTML(item);
+      item.node.querySelector('.toast-close').addEventListener('click', () => queue.dismiss(item.key));
+      item.node.classList.remove('toast-bump');
+      void item.node.offsetWidth;
+      item.node.classList.add('toast-bump');
+    },
+    remove(item) {
+      const node = item.node;
+      if (!node) return;
+      node.classList.add('toast-out');
+      setTimeout(() => node.remove(), 220);
+    }
+  }
+});
+
+// Shows a notification. Mirrors normal/high-priority messages into the
+// Core Log unless `log: false` is passed.
+export function notify({ log, ...options } = {}) {
+  const action = queue.notify(options);
+  const prio = PRIORITY[options.priority] ?? PRIORITY.normal;
+
+  // Avoid duplicate log entries when a deduped toast merely refreshed.
+  const shouldLog = log ?? prio >= PRIORITY.normal;
+  if (shouldLog && action !== 'updated') {
+    addLog(options.title ? `${options.title}: ${options.message}` : options.message, options.type);
+  }
 }
 
-function dismiss(item) {
-  clearTimeout(item.timer);
-  const index = visible.indexOf(item);
-  if (index >= 0) visible.splice(index, 1);
-
-  item.node.classList.add('toast-out');
-  setTimeout(() => {
-    item.node.remove();
-    const next = pending.shift();
-    if (next && visible.length < MAX_VISIBLE) show(next);
-  }, 220);
+export function clearNotifications() {
+  queue.clearAll();
 }
 
 // Subtle pulse on the header chip for routine autosaves — no toast spam.
