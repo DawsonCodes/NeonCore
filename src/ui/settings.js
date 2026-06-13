@@ -25,6 +25,12 @@ export function openSettings() {
   if (!el.settingsDialog.open) el.settingsDialog.showModal();
 }
 
+// Paints the filled (cyan) portion of the volume track. The thumb itself is
+// the native range thumb — exactly one, styled in CSS.
+export function setVolumeFill(value) {
+  el.volumeSlider.style.setProperty('--fill', `${value}%`);
+}
+
 export function closeSettings() {
   if (el.settingsDialog.open) el.settingsDialog.close();
 }

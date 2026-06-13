@@ -1,16 +1,21 @@
 /* ==========================================================================
-   ANIMATIONS: reactor idle motion, click feedback, Surge state, the
-   Singularity collapse sequence, toasts, and purchase feedback.
+   ANIMATIONS: the living reactor, click feedback, Surge states, prestige
+   collapse sequences, shop transitions, toasts, and interface motion.
    Reduced-motion handling lives in base.css and zeroes all of these out.
    ========================================================================== */
 
-/* Reactor idle state: slow breathing halo, pulsing plasma, rotating rings. */
+/* Reactor idle state: breathing halo, drifting internal energy, rotating
+   rings. Higher power tiers spin faster — the reactor feels stronger. */
 .core-halo {
   animation: breathe 3.5s ease-in-out infinite;
 }
 
 .core-inner {
   animation: corePulse 2.8s ease-in-out infinite;
+}
+
+.core-flicker {
+  animation: flickerDrift 7s ease-in-out infinite alternate;
 }
 
 .core-ring {
@@ -23,6 +28,19 @@
 
 .core-spark {
   animation: ringRotate 14s linear infinite reverse;
+}
+
+.core-orbit {
+  animation: ringRotate 22s linear infinite;
+}
+
+body[data-core-tier="3"] .core-ring { animation-duration: 6s; }
+body[data-core-tier="4"] .core-ring { animation-duration: 4.5s; }
+body[data-core-tier="4"] .core-spark { animation-duration: 9s; }
+
+body.singularity-ready .core-orbit,
+body.horizon-ready .core-orbit {
+  animation: ringRotate 10s linear infinite, orbitPulse 2.2s ease-in-out infinite;
 }
 
 /* Click feedback: compression plus an expanding pulse ring. */
@@ -43,7 +61,22 @@
   animation: pulseRing 0.6s ease-out forwards;
 }
 
-/* Surge active: hotter, faster reactor and a magenta cast. */
+/* Surge nearly charged / ready: ring quickens and the button pulses. */
+body.surge-ready .core-ring {
+  border-color: var(--accent-2);
+  animation-duration: 4s;
+}
+
+body.surge-ready .surge-btn:not(:disabled) {
+  animation: readyPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes readyPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(255, 45, 149, 0); }
+  50% { box-shadow: var(--glow-pink); }
+}
+
+/* Surge active: hotter, faster reactor with a magenta cast. */
 body.surge-active .core-inner {
   animation-duration: 1.1s;
   box-shadow:
@@ -63,8 +96,19 @@ body.surge-active .core-halo {
   animation-duration: 1.4s;
 }
 
+/* Brief flash on the charge bar when a click extends an active Surge. */
+.charge-shell.extended .charge-bar {
+  animation: chargeFlash 0.3s ease-out;
+}
+
+@keyframes chargeFlash {
+  0% { filter: brightness(1.9); }
+  100% { filter: brightness(1); }
+}
+
 /* Singularity module shimmer. */
-.singularity-module::after {
+.singularity-module::after,
+.horizon-module::after {
   animation: spin 18s linear infinite;
 }
 
@@ -77,9 +121,36 @@ body.surge-active .core-halo {
   animation: particleBurst 0.78s ease-out forwards;
 }
 
-/* Upgrade purchase pop. */
+/* Shop motion: purchases pop, categories cross-fade. */
 .upgrade.purchased {
   animation: purchasePop 0.4s ease-out;
+}
+
+.shop-panel.panel-switch {
+  animation: panelSwitch 0.24s ease-out;
+}
+
+@keyframes panelSwitch {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.upgrade.is-new {
+  animation: unlockGlow 1.6s ease-out;
+}
+
+@keyframes unlockGlow {
+  0% { border-color: var(--accent-3); box-shadow: var(--glow-gold); }
+  100% { border-color: var(--border); box-shadow: none; }
+}
+
+.tab-dot {
+  animation: dotPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
 }
 
 /* Toasts. */
@@ -108,7 +179,28 @@ body.surge-active .core-halo {
   animation: singularityTitle 2s ease-out forwards;
 }
 
-/* Reduced-motion variant: a short gentle fade with no scaling or flashing. */
+/* Event Horizon collapse: deeper, violet, slightly longer. */
+.singularity-overlay.variant-horizon .singularity-flare {
+  background: radial-gradient(circle, #fff 0%, var(--horizon) 30%, #1a0533 60%, transparent 75%);
+}
+
+.singularity-overlay.variant-horizon .singularity-text {
+  text-shadow: 0 0 24px var(--horizon), 0 0 60px var(--horizon);
+}
+
+.singularity-overlay.variant-horizon.active {
+  animation: overlayFlashHorizon 2.6s ease-out forwards;
+}
+
+.singularity-overlay.variant-horizon.active .singularity-flare {
+  animation: flareCollapseHorizon 2.6s ease-out forwards;
+}
+
+.singularity-overlay.variant-horizon.active .singularity-text {
+  animation: singularityTitle 2.6s ease-out forwards;
+}
+
+/* Reduced-motion variants: a short gentle fade, no scaling or flashing. */
 .singularity-overlay.active.reduced,
 .singularity-overlay.active.reduced .singularity-flare,
 .singularity-overlay.active.reduced .singularity-text {
@@ -126,6 +218,34 @@ body.surge-active .core-halo {
 
 .singularity-overlay.active.reduced .singularity-text {
   opacity: 1;
+}
+
+/* Interface motion. */
+.sheet[open] {
+  animation: sheetIn 0.26s ease-out;
+}
+
+@keyframes sheetIn {
+  from { transform: translateX(28px); opacity: 0.4; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.modal[open] {
+  animation: modalIn 0.22s ease-out;
+}
+
+@keyframes modalIn {
+  from { transform: translateY(8px) scale(0.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.collapse-body:not([hidden]) {
+  animation: collapseIn 0.22s ease-out;
+}
+
+@keyframes collapseIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Keyframes -------------------------------------------------------------- */
@@ -149,6 +269,17 @@ body.surge-active .core-halo {
       0 0 88px color-mix(in srgb, var(--core-color) 55%, transparent),
       0 0 135px color-mix(in srgb, var(--accent-2) 26%, transparent);
   }
+}
+
+@keyframes flickerDrift {
+  0% { transform: rotate(0deg) scale(1); opacity: 0.75; }
+  50% { transform: rotate(14deg) scale(1.05); opacity: 1; }
+  100% { transform: rotate(-10deg) scale(0.97); opacity: 0.8; }
+}
+
+@keyframes orbitPulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
 }
 
 @keyframes coreHit {
@@ -195,8 +326,8 @@ body.surge-active .core-halo {
 }
 
 @keyframes toastIn {
-  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateX(14px) scale(0.97); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 @keyframes toastOut {
@@ -226,64 +357,6 @@ body.surge-active .core-halo {
   100% { opacity: 0; transform: scale(2.8); }
 }
 
-@keyframes singularityTitle {
-  0%, 30% { opacity: 0; transform: scale(0.85); letter-spacing: 0.5em; }
-  45% { opacity: 1; transform: scale(1); letter-spacing: 0.3em; }
-  85% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-/* ==========================================================================
-   v0.3 additions: surge-ready shimmer, surge extension feedback, and the
-   Event Horizon collapse variant.
-   ========================================================================== */
-
-/* Reactor hints that Surge is ready: faster ring + magenta tint pulses. */
-body.surge-ready .core-ring {
-  border-color: var(--accent-2);
-  animation-duration: 4s;
-}
-
-body.surge-ready .surge-btn:not(:disabled) {
-  animation: readyPulse 1.6s ease-in-out infinite;
-}
-
-@keyframes readyPulse {
-  0%, 100% { box-shadow: 0 0 0 rgba(255, 45, 149, 0); }
-  50% { box-shadow: var(--glow-pink); }
-}
-
-/* Brief flash on the charge bar when a click extends an active Surge. */
-.charge-shell.extended .charge-bar {
-  animation: chargeFlash 0.3s ease-out;
-}
-
-@keyframes chargeFlash {
-  0% { filter: brightness(1.9); }
-  100% { filter: brightness(1); }
-}
-
-/* Event Horizon collapse: deeper, violet, slightly longer than Singularity. */
-.singularity-overlay.variant-horizon .singularity-flare {
-  background: radial-gradient(circle, #fff 0%, var(--horizon) 30%, #1a0533 60%, transparent 75%);
-}
-
-.singularity-overlay.variant-horizon .singularity-text {
-  text-shadow: 0 0 24px var(--horizon), 0 0 60px var(--horizon);
-}
-
-.singularity-overlay.variant-horizon.active {
-  animation: overlayFlashHorizon 2.6s ease-out forwards;
-}
-
-.singularity-overlay.variant-horizon.active .singularity-flare {
-  animation: flareCollapseHorizon 2.6s ease-out forwards;
-}
-
-.singularity-overlay.variant-horizon.active .singularity-text {
-  animation: singularityTitle 2.6s ease-out forwards;
-}
-
 @keyframes overlayFlashHorizon {
   0% { background: transparent; }
   16% { background: color-mix(in srgb, #0a0118 90%, transparent); }
@@ -301,29 +374,9 @@ body.surge-ready .surge-btn:not(:disabled) {
   100% { opacity: 0; transform: scale(3.1) rotate(12deg); }
 }
 
-/* Reduced-motion variant reuses the gentle fade from the base overlay. */
-.singularity-overlay.variant-horizon.active.reduced,
-.singularity-overlay.variant-horizon.active.reduced .singularity-flare,
-.singularity-overlay.variant-horizon.active.reduced .singularity-text {
-  animation: none;
-}
-
-/* Settings sheet slide-in. */
-.sheet[open] {
-  animation: sheetIn 0.26s ease-out;
-}
-
-@keyframes sheetIn {
-  from { transform: translateX(28px); opacity: 0.4; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-/* Collapse body reveal. */
-.collapse-body:not([hidden]) {
-  animation: collapseIn 0.22s ease-out;
-}
-
-@keyframes collapseIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes singularityTitle {
+  0%, 30% { opacity: 0; transform: scale(0.85); letter-spacing: 0.5em; }
+  45% { opacity: 1; transform: scale(1); letter-spacing: 0.3em; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
 }

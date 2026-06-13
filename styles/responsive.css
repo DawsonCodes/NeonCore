@@ -1,21 +1,45 @@
 /* ==========================================================================
-   RESPONSIVE: tablet refinements, the app-like phone layout with bottom
-   navigation, and narrow-landscape handling.
-   Breakpoints: 1024px (tablet), 860px (mobile nav), 640px / 480px (phones).
+   RESPONSIVE: cockpit scaling for laptops/tablets, the app-like tabbed
+   phone layout, and narrow-landscape handling.
+   Breakpoints: 1280px, 1100px (stacked), 860px (mobile tabs), 640/480px.
    ========================================================================== */
 
-/* Tablet: tighten the two-column dashboard. */
-@media (max-width: 1024px) {
-  .dashboard {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+/* Laptop: tighten the rails so the center keeps room. */
+@media (max-width: 1280px) {
+  .cockpit {
+    grid-template-columns: clamp(230px, 23vw, 280px) minmax(0, 1fr) clamp(290px, 27vw, 340px);
+    gap: 0.8rem;
   }
 
   .reactor-stage {
-    min-height: 320px;
+    min-height: clamp(300px, 40vh, 420px);
+  }
+
+  .zone-bottom {
+    grid-template-columns: minmax(240px, 1fr) minmax(0, 1.3fr) minmax(0, 1.3fr);
   }
 }
 
-/* Mobile: single active section + bottom tab navigation. */
+/* Small desktop / tablet: center on top, rails side by side beneath. */
+@media (max-width: 1100px) {
+  .cockpit {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "center center"
+      "prog   shop"
+      "bottom bottom";
+  }
+
+  .zone-bottom {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .zone-bottom #activityBlock {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Mobile: tabbed sections + bottom navigation. */
 @media (max-width: 860px) {
   body {
     padding: 0.8rem 0.8rem calc(86px + env(safe-area-inset-bottom, 0px));
@@ -25,7 +49,6 @@
     margin-bottom: 0.8rem;
   }
 
-  /* Header slims down; settings moves to the tab bar. */
   .ghost-btn-label {
     display: none;
   }
@@ -34,8 +57,21 @@
     display: none;
   }
 
-  .dashboard {
-    display: block;
+  /* Reactor first: the progression rail sits in the DOM before the center
+     zone (for the desktop grid), but on mobile the core must lead. */
+  .cockpit {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .zone-progression {
+    order: 2;
+  }
+
+  /* The bottom strip dissolves; its blocks become normal tab panels. */
+  .zone-bottom {
+    display: contents;
   }
 
   .tab-panel {
@@ -43,13 +79,19 @@
   }
 
   .tab-panel.is-active {
-    display: grid;
+    display: block;
     animation: tabIn 0.22s ease-out;
   }
 
-  .panel-upgrades.is-active,
-  .panel-achievements.is-active,
-  .panel-stats.is-active {
+  .zone-progression.is-active {
+    display: grid;
+  }
+
+  .zone-center.is-active {
+    display: grid;
+  }
+
+  .bottom-block.is-active {
     display: block;
   }
 
@@ -67,20 +109,16 @@
   }
 
   .core-btn {
-    width: min(62vw, 250px);
-  }
-
-  .module-row {
-    grid-template-columns: 1fr;
-  }
-
-  .chip {
-    min-width: 0;
-    flex: 1 1 28%;
+    width: min(62vw, 260px);
   }
 
   .energy-value {
     font-size: clamp(2.2rem, 11vw, 3.2rem);
+  }
+
+  .hud-tile {
+    min-width: 0;
+    flex: 1 1 28%;
   }
 
   /* Notifications sit below the header, full width, above the nav. */
@@ -100,6 +138,7 @@
   .buy-btn,
   .surge-btn,
   .prestige-btn,
+  .horizon-btn,
   .action-btn,
   .danger-btn,
   .primary-btn {
@@ -108,6 +147,16 @@
 
   .seg-btn {
     min-height: 2.5rem;
+  }
+
+  .shop-tab {
+    min-height: 2.6rem;
+    padding: 0 0.95rem;
+    font-size: 0.66rem;
+  }
+
+  .volume-row input[type="range"] {
+    width: 8rem;
   }
 }
 
@@ -142,8 +191,8 @@
     gap: 0.2rem;
   }
 
-  .chip strong {
-    font-size: 0.88rem;
+  .hud-tile strong {
+    font-size: 0.9rem;
   }
 }
 
@@ -154,7 +203,7 @@
   }
 
   .reactor-stage {
-    min-height: 220px;
+    min-height: 210px;
   }
 
   .core-btn {
@@ -168,5 +217,9 @@
   .energy-value {
     font-size: 2rem;
     margin-bottom: 0.4rem;
+  }
+
+  .hud-tiles {
+    gap: 0.4rem;
   }
 }

@@ -1,6 +1,7 @@
-// UI rendering. Card structure is rebuilt only when unlock states change;
-// per-frame updates touch existing nodes through a text cache so the DOM is
-// only written when a value actually changes.
+// UI rendering. Card structure is rebuilt only when unlock states, the NEW
+// set, or the selected shop category change; per-frame updates touch
+// existing nodes through a text cache so the DOM is only written when a
+// value actually changes.
 
 import { SURGE_MAX } from '../config/constants.js';
 import { upgradeCategories, upgradeDefs } from '../config/upgrades.js';
@@ -10,6 +11,7 @@ import * as calc from '../core/calc.js';
 import { totalUpgradeLevels } from '../core/state.js';
 import { fmt, fmtTime } from '../utils/format.js';
 import { el } from './dom.js';
+import { categorySummary, selectedCategory } from './shop-state.js';
 
 const textCache = new Map();
 
@@ -29,10 +31,10 @@ function setWidth(node, value) {
 }
 
 // ---------------------------------------------------------------------------
-// Upgrades (grouped, tiered, with locked hints)
+// Upgrade shop (category tabs + single visible panel)
 // ---------------------------------------------------------------------------
 
-let upgradeSignature = '';
+let shopSignature = '';
 
 function upgradeCardHTML(def, isNew) {
   return `
@@ -72,54 +74,63 @@ function lockedCardHTML(def) {
 }
 
 const categoryTeasers = {
+  core: 'Core Output technology comes online immediately.',
+  passive: 'Passive Systems come online immediately.',
+  economy: 'Economy systems unlock as your best energy grows.',
   surge: 'Activate Neon Surge once to unlock Surge technology.',
   singularity: 'Reach your first Singularity to unlock Singularity technology.'
 };
 
-// Rebuilds the grouped upgrade list. Called when unlock states change.
-export function renderUpgrades(state) {
-  const sections = upgradeCategories.map(category => {
-    const defs = upgradeDefs.filter(def => def.category === category.id);
-    const unlocked = defs.filter(def => calc.isUpgradeUnlocked(state, def));
-    const locked = defs.filter(def => !calc.isUpgradeUnlocked(state, def));
+// Rebuilds the shop tabs and the visible category panel.
+export function renderShop(state) {
+  const current = selectedCategory();
 
-    if (unlocked.length === 0) {
-      const teaser = categoryTeasers[category.id];
-      if (!teaser) return '';
-      return `
-        <section class="upgrade-group">
-          <h3 class="upgrade-group-title">${category.name}</h3>
-          <p class="upgrade-teaser">🔒 ${teaser}</p>
-        </section>
-      `;
-    }
-
-    const cards = [
-      ...unlocked.map(def => upgradeCardHTML(def, !state.seenUpgrades.includes(def.id))),
-      ...locked.map(def => lockedCardHTML(def))
-    ].join('');
-
+  el.shopTabs.innerHTML = upgradeCategories.map(category => {
+    const summary = categorySummary(state, category.id);
+    const selected = category.id === current;
     return `
-      <section class="upgrade-group">
-        <h3 class="upgrade-group-title">${category.name}</h3>
-        <div class="upgrade-grid">${cards}</div>
-      </section>
+      <button class="shop-tab${selected ? ' is-active' : ''}${summary.locked ? ' is-locked' : ''}"
+        type="button" role="tab" data-category="${category.id}"
+        aria-selected="${selected}" ${selected ? '' : 'tabindex="-1"'}>
+        <span class="shop-tab-label">${summary.locked ? '🔒 ' : ''}${category.name}</span>
+        <span class="tab-badge" id="shopBadge-${category.id}" ${summary.affordable ? '' : 'hidden'}>${summary.affordable}</span>
+        <span class="tab-dot" id="shopDot-${category.id}" ${summary.fresh ? '' : 'hidden'} aria-label="new upgrades"></span>
+      </button>
     `;
-  });
+  }).join('');
 
-  el.upgradeGrid.innerHTML = sections.join('');
+  const defs = upgradeDefs.filter(def => def.category === current);
+  const unlocked = defs.filter(def => calc.isUpgradeUnlocked(state, def));
+  const locked = defs.filter(def => !calc.isUpgradeUnlocked(state, def));
+  const summary = categorySummary(state, current);
+
+  if (unlocked.length === 0) {
+    el.upgradeGrid.innerHTML = `<p class="upgrade-teaser">🔒 ${categoryTeasers[current] || 'Keep progressing to unlock this category.'}</p>`;
+  } else {
+    el.upgradeGrid.innerHTML = `
+      <p class="shop-summary" id="shopSummary">${summary.unlocked}/${summary.total} unlocked · <span id="shopSummaryLevels">${summary.levels}</span> levels owned</p>
+      <div class="upgrade-grid">
+        ${unlocked.map(def => upgradeCardHTML(def, !state.seenUpgrades.includes(def.id))).join('')}
+        ${locked.map(def => lockedCardHTML(def)).join('')}
+      </div>
+    `;
+  }
+
+  el.upgradeGrid.classList.remove('panel-switch');
+  void el.upgradeGrid.offsetWidth;
+  el.upgradeGrid.classList.add('panel-switch');
 }
 
-// Detects unlock changes; rebuilds the structure when needed and returns the
-// list of ids that just became visible for the first time.
+// Detects unlock or selection changes; rebuilds when needed and returns ids
+// that just became visible for the first time.
 export function syncUpgradeStructure(state) {
   const unlockedIds = upgradeDefs.filter(def => calc.isUpgradeUnlocked(state, def)).map(def => def.id);
-  const signature = unlockedIds.join(',');
-  if (signature === upgradeSignature) return [];
-  upgradeSignature = signature;
+  const signature = `${unlockedIds.join(',')}|${selectedCategory()}`;
+  if (signature === shopSignature) return [];
 
   const fresh = unlockedIds.filter(id => !state.seenUpgrades.includes(id));
-  renderUpgrades(state);
+  shopSignature = signature;
+  renderShop(state);
   return fresh;
 }
 
@@ -151,11 +162,13 @@ function effectText(state, id) {
   return effects[id] || 'Ready';
 }
 
-// Updates upgrade prices, levels, effect text, and affordability state.
+// Updates upgrade prices, levels, effect text, affordability, and the
+// category-tab badges. Runs every frame; cards outside the visible category
+// are skipped automatically.
 function updateUpgradeCards(state) {
   for (const def of upgradeDefs) {
     const costEl = document.getElementById(`${def.id}Cost`);
-    if (!costEl) continue; // locked or teased — no live card
+    if (!costEl) continue;
 
     const cost = calc.costFor(state, def.id);
     const card = document.querySelector(`[data-upgrade="${def.id}"]`);
@@ -174,6 +187,19 @@ function updateUpgradeCards(state) {
       setWidth(affordEl, `${Math.min(100, Math.floor((state.score / cost) * 100))}%`);
     }
   }
+
+  for (const category of upgradeCategories) {
+    const badge = document.getElementById(`shopBadge-${category.id}`);
+    const dot = document.getElementById(`shopDot-${category.id}`);
+    if (!badge) continue;
+    const summary = categorySummary(state, category.id);
+    setText(badge, String(summary.affordable));
+    badge.hidden = summary.affordable === 0;
+    if (dot) dot.hidden = summary.fresh === 0;
+  }
+
+  const levelsEl = document.getElementById('shopSummaryLevels');
+  if (levelsEl) setText(levelsEl, String(categorySummary(state, selectedCategory()).levels));
 }
 
 // ---------------------------------------------------------------------------
@@ -203,8 +229,6 @@ export function renderAchievements() {
   }).join('');
 }
 
-// Updates achievement card styles, the unlocked count, and the collapsed
-// preview line.
 export function updateAchievements(state) {
   const unlocked = new Set(state.unlockedAchievements);
 
@@ -218,7 +242,7 @@ export function updateAchievements(state) {
     if (stateEl) setText(stateEl, isUnlocked ? 'Unlocked' : 'Locked');
   }
 
-  setText(el.achievementCount, `${state.unlockedAchievements.length}/${achievementDefs.length} unlocked`);
+  setText(el.achievementCount, `${state.unlockedAchievements.length}/${achievementDefs.length}`);
 
   const recent = state.unlockedAchievements.slice(-2)
     .map(id => achievementById(id)?.name)
@@ -240,6 +264,20 @@ export function achievementsExpanded() {
 }
 
 // ---------------------------------------------------------------------------
+// Stats (collapsible)
+// ---------------------------------------------------------------------------
+
+export function setStatsExpanded(expanded) {
+  el.statsToggle.setAttribute('aria-expanded', String(expanded));
+  el.statsBody.hidden = !expanded;
+  el.statsToggle.classList.toggle('is-open', expanded);
+}
+
+export function statsExpanded() {
+  return el.statsToggle.getAttribute('aria-expanded') === 'true';
+}
+
+// ---------------------------------------------------------------------------
 // Event Horizon
 // ---------------------------------------------------------------------------
 
@@ -247,7 +285,7 @@ let horizonSignature = '';
 
 function horizonShopHTML(state) {
   return `
-    <h3 class="upgrade-group-title">Shard upgrades</h3>
+    <h3 class="horizon-shop-title">Shard upgrades</h3>
     <div class="horizon-shop-grid">
       ${horizonUpgradeDefs.map(def => {
         const rank = calc.horizonRank(state, def.id);
@@ -279,13 +317,13 @@ function horizonShopHTML(state) {
   `;
 }
 
-// Rebuilds the Horizon shop when shards or ranks change.
 export function updateHorizon(state) {
   const teasing = state.prestigeTotal >= 3 || state.prestige >= 3;
   const unlockedEver = state.horizons > 0 || state.shards > 0 ||
     Object.values(state.horizonUpgrades).some(u => u.rank > 0);
   const visible = teasing || unlockedEver || calc.canHorizon(state);
   el.horizonModule.hidden = !visible;
+  document.body.classList.toggle('horizon-ready', visible && calc.canHorizon(state));
   if (!visible) return;
 
   const ready = calc.canHorizon(state);
@@ -340,6 +378,29 @@ function lastSavedLabel(state, now) {
   return `${fmtTime(seconds)} ago`;
 }
 
+// The reactor visually evolves with progression: a power tier derived from
+// best energy drives glow intensity, and ready-states ring the core.
+function corePowerTier(state) {
+  if (state.bestScore >= 1e10) return 4;
+  if (state.bestScore >= 1e8) return 3;
+  if (state.bestScore >= 1e6) return 2;
+  if (state.bestScore >= 1e4) return 1;
+  return 0;
+}
+
+function updateCoreState(state, now) {
+  const tier = String(corePowerTier(state));
+  if (document.body.dataset.coreTier !== tier) {
+    document.body.dataset.coreTier = tier;
+  }
+  document.body.classList.toggle('singularity-ready', calc.canPrestige(state));
+
+  const charge = (Math.round((state.surgeCharge / SURGE_MAX) * 20) / 20).toFixed(2);
+  if (el.core.style.getPropertyValue('--charge') !== charge) {
+    el.core.style.setProperty('--charge', charge);
+  }
+}
+
 // Pushes the current state values onto the page. Runs every frame.
 export function updateDisplay(state, sessionStartAt, now = Date.now()) {
   const requirement = calc.prestigeRequirement(state);
@@ -359,7 +420,7 @@ export function updateDisplay(state, sessionStartAt, now = Date.now()) {
   setText(el.prestigeProgressText, `${Math.floor(progress)}% to Singularity`);
   el.prestigeProgressShell.setAttribute('aria-valuenow', String(Math.floor(progress)));
 
-  // Surge chip + module
+  // Surge HUD tile + module
   setText(el.surgeChip, activeSurge ? `${surgeLeft}s` : surgeReady ? 'READY' : `${Math.floor(state.surgeCharge)}%`);
   el.surgeChipWrap.classList.toggle('is-active', activeSurge);
   el.surgeChipWrap.classList.toggle('is-ready', !activeSurge && surgeReady);
@@ -394,6 +455,7 @@ export function updateDisplay(state, sessionStartAt, now = Date.now()) {
   setText(el.prestigeBonus, `x${calc.prestigeMult(state).toFixed(2)}`);
 
   updateHorizon(state);
+  updateCoreState(state, now);
 
   // Stats
   setText(el.totalClicks, fmt(state.totalClicks));
@@ -418,6 +480,12 @@ export function updateDisplay(state, sessionStartAt, now = Date.now()) {
   setText(el.statManualSaves, fmt(state.manualSaves));
   setText(el.statExports, fmt(state.exportsCount));
   setText(el.statImports, fmt(state.importsCount));
+
+  // Collapsed-stats summary line
+  setText(
+    el.statsPreview,
+    `${fmtTime(state.playSeconds)} played · ${fmt(state.totalEarned)} earned · ${fmt(state.totalClicks)} clicks`
+  );
 
   // Settings panel live values
   setText(el.lastSavedText, lastSavedLabel(state, now));

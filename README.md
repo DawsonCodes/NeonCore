@@ -4,22 +4,28 @@ A neon sci-fi reactor clicker for the browser. Charge the core, stack tiered upg
 
 **▶ Play now:** https://dawsoncodes.github.io/NeonCore/
 
-> **Status:** alpha — `v0.3.0-alpha.1`. Progression is stable and saves are versioned; balance and visuals keep evolving.
+> **Status:** alpha — `v0.4.0-alpha.1`. Progression is stable and saves are versioned; balance and visuals keep evolving.
+
+## Interface
+
+Neon Core plays inside a wide **cockpit-style dashboard**: the living reactor core sits center stage with its HUD (energy, per-click, per-second, multiplier, critical chance, Surge charge), the progression rail (Neon Surge, Singularity, Event Horizon) on the left, and a **category-tabbed Upgrade Shop** on the right. Activity, achievements, and stats live in a compact bottom strip — achievements and detailed stats are collapsible so the page stays short. The reactor itself evolves with progression: higher power tiers spin faster and glow harder, the outer orbit ring lights up gold when a Singularity is ready and violet at the Event Horizon, and Surge charge visibly energizes the rings.
+
+On phones the same game becomes an app-like, reactor-first experience with bottom-tab navigation (Core / Shop / Awards / Stats / Settings).
 
 ## Features
 
 - **Reactor clicking** — click (or press `Space`) with satisfying pulse, particle, and floating-number feedback
-- **14 tiered upgrades** in five categories (Core Output, Passive Systems, Neon Surge, Economy, Singularity Tech) that unlock gradually as you progress
+- **14 tiered upgrades** in a category-tabbed shop (Core Output, Passive Systems, Neon Surge, Economy, Singularity Tech) with affordability badges, NEW indicators, and unlock teasers
 - **Critical clicks** — up to 60% chance, with an upgradeable critical multiplier
 - **Neon Surge** — charge by clicking, unleash a temporary output boost, and keep clicking to *extend* it; upgradeable charge rate, duration, and strength
 - **Singularity prestige** — collapse the core for a permanent +25% global multiplier; the requirement grows with each collapse
 - **Event Horizon** — a second prestige layer: convert your Singularities into permanent Horizon Shards and spend them on five strategic shard upgrades
-- **48 achievements** — each adds +2% global output; collapsible desktop view with recent-unlock preview
-- **Deep stats** — lifetime, session, surge, and prestige stats, grouped and readable
+- **48 achievements** — each adds +2% global output; collapsible drawer with recent-unlock preview
+- **Deep stats** — lifetime, session, surge, and prestige stats in a collapsible, grouped panel
 - **Offline progress** — passive earnings while away (2 h cap, extendable via Temporal Cache)
 - **Save slots** — three local manual slots with rename, restore, per-slot export/import, and automatic backups
 - **Autosave + manual save** — plus JSON export/import for moving progress between browsers
-- **Remastered procedural audio** — Web Audio sound design with a master volume slider, throttled so rapid clicking never gets harsh
+- **Remastered procedural audio** — Web Audio sound design with a master volume slider (single-thumb, cyan-filled), throttled so rapid clicking never gets harsh
 - **Two themes** — dark cyberpunk command center and a bright solar-laboratory light mode
 - **Mobile-first layout** — app-like bottom navigation on phones, full dashboard on desktop
 - **Accessibility** — keyboard play, visible focus, reduced-motion support, screen-reader-friendly notifications
@@ -49,7 +55,7 @@ Buy mode applies to every upgrade card: **Buy 1** purchases a single level, **Bu
 
 ## Audio
 
-Sound is fully procedural (Web Audio — no audio files or remote assets). Settings has a sound toggle and a master volume slider; both persist. Rapid clicking is throttled so audio never piles up.
+Sound is fully procedural (Web Audio — no audio files or remote assets). The redesigned settings drawer has a sound toggle and a master volume slider; both persist. Rapid clicking is throttled so audio never piles up.
 
 ## Saving
 
@@ -102,7 +108,7 @@ tests/              Node test suite
 ## Accessibility
 
 - Semantic HTML, labeled controls, and native `<dialog>` modals (focus trapping + Escape for free)
-- Full keyboard support: reactor activation, buy-mode toggle, save, collapsible sections with `aria-expanded`
+- Full keyboard support: reactor activation, buy-mode toggle, save, arrow-key shop tabs, collapsible sections with `aria-expanded`
 - Notifications use polite/assertive live regions; routine autosave feedback stays subtle
 - Honors `prefers-reduced-motion` plus an in-game **Reduced animation** toggle (persisted, survives resets)
 - Touch targets sized for phones; no hover-only information; state badges use text, not color alone
@@ -116,7 +122,7 @@ Deployed with **GitHub Pages** straight from the repository root — no build ou
 - A third late-game prestige concept
 - More Surge interactions and visual set-pieces
 - Optional challenge modifiers
-- Richer Core Log filtering
+- Richer activity-log filtering
 
 ## License
 
