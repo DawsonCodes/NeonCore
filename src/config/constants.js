@@ -1,7 +1,7 @@
 // Central configuration for Neon Core.
 // Balance values are documented in docs/BALANCE.md — keep both in sync.
 
-export const APP_VERSION = 'v0.3.0-alpha.1';
+export const APP_VERSION = 'v0.4.0-alpha.1';
 
 // Persistence keys. The v4 key is the current schema; legacy keys are read
 // (and migrated) so progress from earlier alphas is never lost.

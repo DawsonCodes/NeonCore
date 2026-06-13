@@ -1,6 +1,6 @@
 {
   "name": "neon-core",
-  "version": "0.3.0-alpha.1",
+  "version": "0.4.0-alpha.1",
   "description": "Neon sci-fi reactor clicker game. Browser-native ES modules, no dependencies.",
   "private": true,
   "type": "module",

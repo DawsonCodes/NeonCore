@@ -8,7 +8,7 @@
 import { unlockAudio } from '../systems/audio.js';
 import { el } from './dom.js';
 import { clickDecision, keydownDecision } from './input.js';
-import { openSettings } from './settings.js';
+import { openSettings, setVolumeFill } from './settings.js';
 
 export function initEvents(game) {
   let lastKeyboardActivationAt = -Infinity;
@@ -55,6 +55,22 @@ export function initEvents(game) {
   el.buyOneBtn.addEventListener('click', () => game.setBuyMode('one'));
   el.buyMaxBtn.addEventListener('click', () => game.setBuyMode('max'));
 
+  // --- Shop category tabs (delegation; tabs are re-rendered on change) ---
+  el.shopTabs.addEventListener('click', event => {
+    const tab = event.target.closest('[data-category]');
+    if (tab) game.selectShopCategory(tab.dataset.category);
+  });
+  el.shopTabs.addEventListener('keydown', event => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    const tabs = [...el.shopTabs.querySelectorAll('[data-category]')];
+    const index = tabs.indexOf(document.activeElement);
+    if (index === -1) return;
+    event.preventDefault();
+    const next = tabs[(index + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+    game.selectShopCategory(next.dataset.category);
+    el.shopTabs.querySelector(`[data-category="${next.dataset.category}"]`)?.focus();
+  });
+
   // --- Surge + prestige layers ---
   el.surgeBtn.addEventListener('click', () => game.surge());
   el.prestigeBtn.addEventListener('click', () => game.singularity());
@@ -64,8 +80,9 @@ export function initEvents(game) {
     if (btn) game.buyHorizonUpgrade(btn.dataset.horizonBuy);
   });
 
-  // --- Achievements collapse ---
+  // --- Achievements + stats collapse ---
   el.achievementToggle.addEventListener('click', () => game.toggleAchievements());
+  el.statsToggle.addEventListener('click', () => game.toggleStats());
 
   // --- Header ---
   el.themeBtn.addEventListener('click', () => game.toggleTheme());
@@ -84,7 +101,10 @@ export function initEvents(game) {
     });
   }
   el.soundToggle.addEventListener('change', () => game.setMuted(!el.soundToggle.checked));
-  el.volumeSlider.addEventListener('input', () => game.setVolume(el.volumeSlider.value / 100));
+  el.volumeSlider.addEventListener('input', () => {
+    game.setVolume(el.volumeSlider.value / 100);
+    setVolumeFill(el.volumeSlider.value);
+  });
   el.motionToggle.addEventListener('change', () => game.setReducedMotion(el.motionToggle.checked));
   el.saveNowBtn.addEventListener('click', () => game.saveNow());
   el.exportBtn.addEventListener('click', () => game.exportSave());

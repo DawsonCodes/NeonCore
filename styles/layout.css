@@ -1,11 +1,20 @@
 /* ==========================================================================
-   LAYOUT: header, desktop dashboard grid, panels, and mobile navigation.
+   LAYOUT: header and the cockpit grid.
+
+   Desktop is a wide three-zone cockpit:
+     ┌──────────────────────────────────────────────┐
+     │ progression │   HUD + reactor   │ upgrade    │
+     │   rail      │     (center)      │  shop      │
+     ├──────────────────────────────────────────────┤
+     │ activity · achievements · stats (bottom)     │
+     └──────────────────────────────────────────────┘
+   Mobile switches to tabbed sections (responsive.css).
    ========================================================================== */
 
 .top-bar,
-.dashboard,
+.cockpit,
 .hint {
-  width: min(1180px, 100%);
+  width: min(1680px, 100%);
   margin: 0 auto;
 }
 
@@ -15,7 +24,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.1rem;
+  margin-bottom: 1rem;
 }
 
 .brand {
@@ -56,43 +65,47 @@
   gap: 0.55rem;
 }
 
-/* Dashboard grid ----------------------------------------------------------- */
-.dashboard {
+/* Cockpit grid -------------------------------------------------------------- */
+.cockpit {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(360px, 5fr);
-  gap: var(--gap);
+  grid-template-columns: clamp(250px, 21vw, 320px) minmax(0, 1fr) clamp(310px, 25vw, 400px);
+  grid-template-areas:
+    "prog center shop"
+    "bottom bottom bottom";
+  gap: 1rem;
   align-items: start;
 }
 
-.panel-core { grid-column: 1; grid-row: 1; }
-.panel-upgrades { grid-column: 2; grid-row: 1 / 3; }
-.panel-achievements { grid-column: 1; grid-row: 2; }
-.panel-stats { grid-column: 1 / -1; grid-row: 3; }
-
-/* Shared panel surface. */
-.panel,
-.tab-panel.panel-upgrades,
-.tab-panel.panel-achievements,
-.tab-panel.panel-stats {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(150deg, var(--surface), color-mix(in srgb, var(--surface) 60%, transparent));
-  box-shadow: var(--shadow-soft);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  padding: 1.1rem;
+.zone-progression {
+  grid-area: prog;
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
 }
 
-/* The core column is a stack of its own panels, not one giant card. */
-.panel-core {
+.zone-center {
+  grid-area: center;
   display: grid;
-  gap: var(--gap);
+  gap: 0.4rem;
+  align-content: start;
 }
 
-.module-row {
+.zone-shop {
+  grid-area: shop;
+}
+
+.zone-bottom {
+  grid-area: bottom;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap);
+  grid-template-columns: minmax(270px, 1fr) minmax(0, 1.35fr) minmax(0, 1.35fr);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 0.2rem;
+}
+
+/* Expanding achievements or stats lets the block take the full row. */
+.bottom-block:has(.collapse-toggle.is-open) {
+  grid-column: 1 / -1;
 }
 
 /* Section headers ----------------------------------------------------------- */
@@ -101,22 +114,22 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.8rem;
 }
 
 .section-title {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.7rem;
   color: var(--text-dim);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 800;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.28em;
 }
 
 .section-title::after {
   content: '';
-  width: clamp(30px, 9vw, 110px);
+  width: clamp(20px, 5vw, 70px);
   height: 1px;
   background: linear-gradient(90deg, var(--border-strong), transparent);
 }
@@ -124,11 +137,11 @@
 .section-subtitle {
   color: var(--text-dim);
   font-family: var(--font-display);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 800;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  margin: 1.2rem 0 0.6rem;
+  margin: 1.1rem 0 0.55rem;
 }
 
 .section-meta {
@@ -141,7 +154,7 @@
 .section-note {
   color: var(--text-faded);
   font-size: 0.92rem;
-  margin: -0.4rem 0 0.9rem;
+  margin: 0 0 0.9rem;
 }
 
 /* Footer hint ---------------------------------------------------------------- */
@@ -180,12 +193,13 @@
   color: var(--text-dim);
   cursor: pointer;
   padding: 0.3rem 0.2rem;
-  transition: color 0.18s ease, background 0.18s ease;
+  transition: color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 }
 
 .nav-icon {
   font-size: 1.15rem;
   line-height: 1;
+  transition: transform 0.18s ease;
 }
 
 .nav-label {
@@ -199,4 +213,8 @@
 .nav-btn.is-active {
   color: var(--accent);
   background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.nav-btn.is-active .nav-icon {
+  transform: translateY(-1px) scale(1.08);
 }

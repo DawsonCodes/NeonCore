@@ -56,6 +56,7 @@ export const el = {
 
   // Upgrades
   upgradeGrid: $('upgradeGrid'),
+  shopTabs: $('shopTabs'),
   buyOneBtn: $('buyOneBtn'),
   buyMaxBtn: $('buyMaxBtn'),
 
@@ -65,6 +66,11 @@ export const el = {
   achievementToggle: $('achievementToggle'),
   achievementPreview: $('achievementPreview'),
   achievementBody: $('achievementBody'),
+
+  // Stats collapse
+  statsToggle: $('statsToggle'),
+  statsPreview: $('statsPreview'),
+  statsBody: $('statsBody'),
 
   // Stats + log
   totalClicks: $('totalClicks'),

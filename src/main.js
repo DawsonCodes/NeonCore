@@ -32,10 +32,13 @@ import {
   markUpgradesSeen,
   renderAchievements,
   setAchievementsExpanded,
+  setStatsExpanded,
+  statsExpanded,
   syncUpgradeStructure,
   updateAchievements,
   updateDisplay
 } from './ui/render.js';
+import { categoryUnlockedIds, selectCategory } from './ui/shop-state.js';
 import {
   applyMotionPreference,
   flashUpgradeCard,
@@ -50,7 +53,7 @@ import {
 } from './ui/effects.js';
 import { addLog, clearLog, clearNotifications, flashSaveChip, notify } from './ui/notifications.js';
 import { initEvents } from './ui/events.js';
-import { initSettings, renderSlots, showConfirm, showOfflineSummary } from './ui/settings.js';
+import { initSettings, renderSlots, setVolumeFill, showConfirm, showOfflineSummary } from './ui/settings.js';
 import { fmt } from './utils/format.js';
 
 // ---------------------------------------------------------------------------
@@ -297,6 +300,19 @@ const game = {
     setAchievementsExpanded(!achievementsExpanded());
   },
 
+  toggleStats() {
+    setStatsExpanded(!statsExpanded());
+  },
+
+  // Switches the visible shop category. NEW badges stay visible for this
+  // view; the category's upgrades are marked seen so its tab dot clears.
+  selectShopCategory(id) {
+    selectCategory(id);
+    syncUpgradeStructure(state);
+    markUpgradesSeen(state, categoryUnlockedIds(state, id));
+    updateDisplay(state, sessionStartAt);
+  },
+
   saveNow() {
     state.manualSaves++;
     persist({ flash: true });
@@ -516,6 +532,7 @@ function afterStateReplaced() {
   applyTheme(state);
   applyMotionPreference();
   el.volumeSlider.value = Math.round(state.volume * 100);
+  setVolumeFill(Math.round(state.volume * 100));
   setSurgeVisual(calc.isSurgeActive(state));
   setSurgeReadyVisual(!calc.isSurgeActive(state) && state.surgeCharge >= SURGE_MAX);
   checkUpgradeUnlocks({ silent: true });
@@ -549,11 +566,14 @@ function init() {
   applyTheme(state);
   applyMotionPreference();
   el.volumeSlider.value = Math.round(state.volume * 100);
+  setVolumeFill(Math.round(state.volume * 100));
   setSurgeVisual(calc.isSurgeActive(state));
 
-  // Achievements: compact by default on desktop, expanded inside the
-  // dedicated mobile tab.
-  setAchievementsExpanded(window.matchMedia('(max-width: 860px)').matches);
+  // Achievements and stats: compact by default on desktop, expanded inside
+  // their dedicated mobile tabs.
+  const mobile = window.matchMedia('(max-width: 860px)').matches;
+  setAchievementsExpanded(mobile);
+  setStatsExpanded(mobile);
 
   // Build the upgrade list without "NEW" fanfare for everything an existing
   // save had already unlocked.

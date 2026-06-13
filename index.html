@@ -6,6 +6,7 @@
   <meta name="description" content="Neon Core is a neon sci-fi reactor clicker with tiered upgrades, achievements, two prestige layers, offline progress, and autosave.">
   <meta name="theme-color" content="#050812">
   <title>Neon Core — Reactor Clicker</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -40,68 +41,38 @@
     </div>
   </header>
 
-  <main class="dashboard" id="dashboard">
-    <!-- CORE: energy readout, reactor, Neon Surge, Singularity, Event Horizon. -->
-    <section class="tab-panel panel-core is-active" id="tab-core" data-tab="core" aria-label="Reactor core">
-      <div class="energy-block panel">
-        <p class="energy-label">Reactor Energy</p>
-        <p id="score" class="energy-value">0</p>
-        <div class="stat-chips" aria-label="Live reactor stats">
-          <div class="chip"><span class="chip-label">Per click</span><strong id="perClick">+1</strong></div>
-          <div class="chip"><span class="chip-label">Per second</span><strong id="cps">0</strong></div>
-          <div class="chip"><span class="chip-label">Multiplier</span><strong id="multiplier">x1.00</strong></div>
-          <div class="chip"><span class="chip-label">Critical</span><strong id="critChance">0%</strong></div>
-          <div class="chip chip-surge" id="surgeChipWrap"><span class="chip-label">Surge</span><strong id="surgeChip">0%</strong></div>
+  <main class="cockpit" id="dashboard">
+    <!-- LEFT RAIL: progression systems (part of the Core tab on mobile). -->
+    <aside class="tab-panel zone-progression is-active" id="zone-progression" data-tab="core" aria-label="Progression systems">
+      <section class="surge-module module" aria-labelledby="surgeTitle">
+        <div class="module-head">
+          <h2 id="surgeTitle" class="module-title surge-title">Neon Surge</h2>
+          <span id="surgeBadge" class="state-badge">Charging</span>
         </div>
-        <div class="progress-shell" id="prestigeProgressShell" role="progressbar"
-             aria-label="Progress to Singularity" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div id="prestigeProgress" class="progress-bar"></div>
+        <p id="surgeText" class="module-desc">Click the core to build charge, then unleash a temporary output boost. Keep clicking during a Surge to extend it.</p>
+        <div class="charge-shell" id="surgeChargeShell" role="progressbar" aria-label="Surge charge"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="surgeCharge" class="charge-bar"></div>
         </div>
-        <p id="prestigeProgressText" class="progress-text">0% to Singularity</p>
-      </div>
+        <button id="surgeBtn" class="surge-btn" type="button" disabled>Charging…</button>
+      </section>
 
-      <div class="reactor-stage panel" aria-label="Reactor">
-        <button id="coreBtn" class="core-btn" type="button" aria-label="Charge the core — click to generate energy">
-          <span class="core-halo" aria-hidden="true"></span>
-          <span class="core-ring" aria-hidden="true"></span>
-          <span class="core-spark" aria-hidden="true"></span>
-          <span class="core-inner" aria-hidden="true"></span>
-          <span class="core-pulse" id="corePulseRing" aria-hidden="true"></span>
+      <section class="singularity-module module" aria-labelledby="singularityTitle">
+        <div class="module-head">
+          <h2 id="singularityTitle" class="module-title singularity-title">Singularity</h2>
+          <span id="prestigeBadge" class="state-badge">Locked</span>
+        </div>
+        <p id="prestigeDesc" class="module-desc">Collapse the core for a permanent +25% global multiplier. Energy and upgrades reset — achievements, stats, and Horizon progress stay.</p>
+        <div class="prestige-info">
+          <span class="info-tile">Singularities <strong id="prestigeCount">0</strong></span>
+          <span class="info-tile">Permanent bonus <strong id="prestigeBonus">x1.00</strong></span>
+        </div>
+        <button id="prestigeBtn" class="prestige-btn" type="button" disabled>
+          <span id="prestigeStatus">Locked</span>
         </button>
-        <div id="floatContainer" class="float-container" aria-hidden="true"></div>
-      </div>
+      </section>
 
-      <div class="module-row">
-        <section class="surge-module panel" aria-labelledby="surgeTitle">
-          <div class="module-head">
-            <h2 id="surgeTitle" class="module-title surge-title">Neon Surge</h2>
-            <span id="surgeBadge" class="state-badge">Charging</span>
-          </div>
-          <p id="surgeText" class="module-desc">Click the core to build charge, then unleash a temporary output boost. Keep clicking during a Surge to extend it.</p>
-          <div class="charge-shell" id="surgeChargeShell" role="progressbar" aria-label="Surge charge"
-               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-            <div id="surgeCharge" class="charge-bar"></div>
-          </div>
-          <button id="surgeBtn" class="surge-btn" type="button" disabled>Charging…</button>
-        </section>
-
-        <section class="singularity-module panel" aria-labelledby="singularityTitle">
-          <div class="module-head">
-            <h2 id="singularityTitle" class="module-title singularity-title">Singularity</h2>
-            <span id="prestigeBadge" class="state-badge">Locked</span>
-          </div>
-          <p id="prestigeDesc" class="module-desc">Collapse the core for a permanent +25% global multiplier. Energy and upgrades reset — achievements, stats, and Horizon progress stay.</p>
-          <div class="prestige-info">
-            <span class="info-tile">Singularities <strong id="prestigeCount">0</strong></span>
-            <span class="info-tile">Permanent bonus <strong id="prestigeBonus">x1.00</strong></span>
-          </div>
-          <button id="prestigeBtn" class="prestige-btn" type="button" disabled>
-            <span id="prestigeStatus">Need 100K energy</span>
-          </button>
-        </section>
-      </div>
-
-      <section class="horizon-module panel" id="horizonModule" hidden aria-labelledby="horizonTitle">
+      <section class="horizon-module module" id="horizonModule" hidden aria-labelledby="horizonTitle">
         <div class="module-head">
           <h2 id="horizonTitle" class="module-title horizon-title">Event Horizon</h2>
           <span id="horizonBadge" class="state-badge">Locked</span>
@@ -116,85 +87,130 @@
         </button>
         <div id="horizonShop" class="horizon-shop" aria-label="Horizon Shard upgrades"></div>
       </section>
+    </aside>
+
+    <!-- CENTER: reactor HUD + the core itself. -->
+    <section class="tab-panel zone-center is-active" id="tab-core" data-tab="core" aria-label="Reactor core">
+      <div class="hud">
+        <p class="energy-label">Reactor Energy</p>
+        <p id="score" class="energy-value">0</p>
+        <div class="hud-tiles" aria-label="Live reactor stats">
+          <div class="hud-tile"><span class="hud-tile-label">Per click</span><strong id="perClick">+1</strong></div>
+          <div class="hud-tile"><span class="hud-tile-label">Per second</span><strong id="cps">0</strong></div>
+          <div class="hud-tile"><span class="hud-tile-label">Multiplier</span><strong id="multiplier">x1.00</strong></div>
+          <div class="hud-tile"><span class="hud-tile-label">Critical</span><strong id="critChance">0%</strong></div>
+          <div class="hud-tile hud-tile-surge" id="surgeChipWrap"><span class="hud-tile-label">Surge</span><strong id="surgeChip">0%</strong></div>
+        </div>
+      </div>
+
+      <div class="reactor-stage" aria-label="Reactor">
+        <button id="coreBtn" class="core-btn" type="button" aria-label="Charge the core — click to generate energy">
+          <span class="core-halo" aria-hidden="true"></span>
+          <span class="core-orbit" aria-hidden="true"></span>
+          <span class="core-ring" aria-hidden="true"></span>
+          <span class="core-spark" aria-hidden="true"></span>
+          <span class="core-inner" aria-hidden="true"></span>
+          <span class="core-flicker" aria-hidden="true"></span>
+          <span class="core-pulse" id="corePulseRing" aria-hidden="true"></span>
+        </button>
+        <div id="floatContainer" class="float-container" aria-hidden="true"></div>
+      </div>
+
+      <div class="hud-progress">
+        <div class="progress-shell" id="prestigeProgressShell" role="progressbar"
+             aria-label="Progress to Singularity" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="prestigeProgress" class="progress-bar"></div>
+        </div>
+        <p id="prestigeProgressText" class="progress-text">0% to Singularity</p>
+      </div>
     </section>
 
-    <!-- UPGRADES -->
-    <section class="tab-panel panel-upgrades" id="tab-upgrades" data-tab="upgrades" aria-labelledby="upgradesHeading">
+    <!-- RIGHT RAIL: category-based upgrade shop. -->
+    <section class="tab-panel zone-shop" id="tab-upgrades" data-tab="upgrades" aria-labelledby="upgradesHeading">
       <div class="section-head">
-        <h2 id="upgradesHeading" class="section-title">Upgrades</h2>
+        <h2 id="upgradesHeading" class="section-title">Upgrade Shop</h2>
         <div class="seg" role="group" aria-label="Buy amount">
           <button id="buyOneBtn" class="seg-btn" type="button" aria-pressed="true">Buy 1</button>
           <button id="buyMaxBtn" class="seg-btn" type="button" aria-pressed="false">Buy Max</button>
         </div>
       </div>
-      <div id="upgradeGrid" class="upgrade-groups"></div>
+      <div id="shopTabs" class="shop-tabs" role="tablist" aria-label="Upgrade categories"></div>
+      <div id="upgradeGrid" class="shop-panel" role="tabpanel" aria-labelledby="upgradesHeading"></div>
     </section>
 
-    <!-- ACHIEVEMENTS -->
-    <section class="tab-panel panel-achievements" id="tab-achievements" data-tab="achievements" aria-labelledby="achievementsHeading">
-      <div class="section-head">
-        <h2 id="achievementsHeading" class="section-title">Achievements</h2>
-        <span id="achievementCount" class="section-meta">0/0 unlocked</span>
-      </div>
-      <button id="achievementToggle" class="collapse-toggle" type="button" aria-expanded="false" aria-controls="achievementBody">
-        <span id="achievementPreview" class="collapse-preview">No achievements unlocked yet.</span>
-        <span class="collapse-arrow" aria-hidden="true">▾</span>
-      </button>
-      <div id="achievementBody" class="collapse-body" hidden>
-        <p class="section-note">Each unlocked achievement adds +2% global output.</p>
-        <div id="achievementGrid" class="achievement-groups"></div>
-      </div>
-    </section>
-
-    <!-- STATS + CORE LOG -->
-    <section class="tab-panel panel-stats" id="tab-stats" data-tab="stats" aria-labelledby="statsHeading">
-      <div class="section-head">
-        <h2 id="statsHeading" class="section-title">Stats</h2>
-      </div>
-
-      <h3 class="section-subtitle">Reactor</h3>
-      <div class="stat-grid">
-        <div class="stat"><span class="stat-label">Total clicks</span><span id="totalClicks" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Critical hits</span><span id="totalCrits" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Biggest click</span><span id="biggestClick" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Best energy</span><span id="bestScore" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Total earned</span><span id="totalEarned" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Total spent</span><span id="totalSpent" class="stat-val">0</span></div>
-      </div>
-
-      <h3 class="section-subtitle">Generation</h3>
-      <div class="stat-grid">
-        <div class="stat"><span class="stat-label">Passive output</span><span id="statEps" class="stat-val">0/s</span></div>
-        <div class="stat"><span class="stat-label">Best passive</span><span id="statBestEps" class="stat-val">0/s</span></div>
-        <div class="stat"><span class="stat-label">Offline earned</span><span id="statOffline" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Upgrades owned</span><span id="statUpgrades" class="stat-val">0</span></div>
-      </div>
-
-      <h3 class="section-subtitle">Surge &amp; Prestige</h3>
-      <div class="stat-grid">
-        <div class="stat"><span class="stat-label">Surges used</span><span id="statSurges" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Time in Surge</span><span id="statSurgeTime" class="stat-val">0s</span></div>
-        <div class="stat"><span class="stat-label">Singularities</span><span id="statPrestige" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Lifetime collapses</span><span id="statPrestigeTotal" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Horizon crossings</span><span id="statHorizons" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Lifetime shards</span><span id="statShardsTotal" class="stat-val">0</span></div>
-      </div>
-
-      <h3 class="section-subtitle">Records</h3>
-      <div class="stat-grid">
-        <div class="stat"><span class="stat-label">Time played</span><span id="timePlayed" class="stat-val">0s</span></div>
-        <div class="stat"><span class="stat-label">This session</span><span id="sessionTime" class="stat-val">0s</span></div>
-        <div class="stat"><span class="stat-label">Achievement boost</span><span id="achievementBonus" class="stat-val">x1.00</span></div>
-        <div class="stat"><span class="stat-label">Manual saves</span><span id="statManualSaves" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Exports</span><span id="statExports" class="stat-val">0</span></div>
-        <div class="stat"><span class="stat-label">Imports</span><span id="statImports" class="stat-val">0</span></div>
-      </div>
-
-      <div class="log-block">
-        <h3 class="section-subtitle">Core Log</h3>
+    <!-- BOTTOM STRIP: activity, achievements, stats. -->
+    <div class="zone-bottom" id="zone-bottom">
+      <section class="bottom-block tab-panel" id="activityBlock" data-tab="stats" aria-labelledby="activityHeading">
+        <div class="section-head">
+          <h2 id="activityHeading" class="section-title">Activity</h2>
+        </div>
         <ul id="eventLog" class="event-log"></ul>
-      </div>
-    </section>
+      </section>
+
+      <section class="bottom-block tab-panel" id="tab-achievements" data-tab="achievements" aria-labelledby="achievementsHeading">
+        <div class="section-head">
+          <h2 id="achievementsHeading" class="section-title">Achievements</h2>
+          <span id="achievementCount" class="section-meta">0/0</span>
+        </div>
+        <button id="achievementToggle" class="collapse-toggle" type="button" aria-expanded="false" aria-controls="achievementBody">
+          <span id="achievementPreview" class="collapse-preview">No achievements unlocked yet.</span>
+          <span class="collapse-arrow" aria-hidden="true">▾</span>
+        </button>
+        <div id="achievementBody" class="collapse-body" hidden>
+          <p class="section-note">Each unlocked achievement adds +2% global output.</p>
+          <div id="achievementGrid" class="achievement-groups"></div>
+        </div>
+      </section>
+
+      <section class="bottom-block tab-panel" id="tab-stats" data-tab="stats" aria-labelledby="statsHeading">
+        <div class="section-head">
+          <h2 id="statsHeading" class="section-title">Stats</h2>
+        </div>
+        <button id="statsToggle" class="collapse-toggle" type="button" aria-expanded="false" aria-controls="statsBody">
+          <span id="statsPreview" class="collapse-preview">—</span>
+          <span class="collapse-arrow" aria-hidden="true">▾</span>
+        </button>
+        <div id="statsBody" class="collapse-body" hidden>
+          <h3 class="section-subtitle">Reactor</h3>
+          <div class="stat-grid">
+            <div class="stat"><span class="stat-label">Total clicks</span><span id="totalClicks" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Critical hits</span><span id="totalCrits" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Biggest click</span><span id="biggestClick" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Best energy</span><span id="bestScore" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Total earned</span><span id="totalEarned" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Total spent</span><span id="totalSpent" class="stat-val">0</span></div>
+          </div>
+
+          <h3 class="section-subtitle">Generation</h3>
+          <div class="stat-grid">
+            <div class="stat"><span class="stat-label">Passive output</span><span id="statEps" class="stat-val">0/s</span></div>
+            <div class="stat"><span class="stat-label">Best passive</span><span id="statBestEps" class="stat-val">0/s</span></div>
+            <div class="stat"><span class="stat-label">Offline earned</span><span id="statOffline" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Upgrades owned</span><span id="statUpgrades" class="stat-val">0</span></div>
+          </div>
+
+          <h3 class="section-subtitle">Surge &amp; Prestige</h3>
+          <div class="stat-grid">
+            <div class="stat"><span class="stat-label">Surges used</span><span id="statSurges" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Time in Surge</span><span id="statSurgeTime" class="stat-val">0s</span></div>
+            <div class="stat"><span class="stat-label">Singularities</span><span id="statPrestige" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Lifetime collapses</span><span id="statPrestigeTotal" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Horizon crossings</span><span id="statHorizons" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Lifetime shards</span><span id="statShardsTotal" class="stat-val">0</span></div>
+          </div>
+
+          <h3 class="section-subtitle">Records</h3>
+          <div class="stat-grid">
+            <div class="stat"><span class="stat-label">Time played</span><span id="timePlayed" class="stat-val">0s</span></div>
+            <div class="stat"><span class="stat-label">This session</span><span id="sessionTime" class="stat-val">0s</span></div>
+            <div class="stat"><span class="stat-label">Achievement boost</span><span id="achievementBonus" class="stat-val">x1.00</span></div>
+            <div class="stat"><span class="stat-label">Manual saves</span><span id="statManualSaves" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Exports</span><span id="statExports" class="stat-val">0</span></div>
+            <div class="stat"><span class="stat-label">Imports</span><span id="statImports" class="stat-val">0</span></div>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
 
   <footer class="hint">
@@ -207,7 +223,7 @@
       <span class="nav-icon" aria-hidden="true">◉</span><span class="nav-label">Core</span>
     </button>
     <button class="nav-btn" type="button" data-nav="upgrades">
-      <span class="nav-icon" aria-hidden="true">⚡</span><span class="nav-label">Upgrades</span>
+      <span class="nav-icon" aria-hidden="true">⚡</span><span class="nav-label">Shop</span>
     </button>
     <button class="nav-btn" type="button" data-nav="achievements">
       <span class="nav-icon" aria-hidden="true">★</span><span class="nav-label">Awards</span>
@@ -228,7 +244,7 @@
     </div>
     <div class="sheet-body">
       <section class="settings-group">
-        <h3 class="settings-heading">Appearance</h3>
+        <h3 class="settings-heading"><span class="settings-heading-icon" aria-hidden="true">☀</span>Appearance</h3>
         <fieldset class="theme-picker">
           <legend class="visually-hidden">Theme</legend>
           <label class="radio-card">
@@ -247,37 +263,37 @@
       </section>
 
       <section class="settings-group">
-        <h3 class="settings-heading">Audio</h3>
+        <h3 class="settings-heading"><span class="settings-heading-icon" aria-hidden="true">♫</span>Audio</h3>
         <label class="switch-row">
           <span>Sound effects<small>Clicks, purchases, and events</small></span>
           <input id="soundToggle" type="checkbox" role="switch">
         </label>
-        <label class="switch-row volume-row">
-          <span>Volume<small>Master loudness</small></span>
-          <input id="volumeSlider" type="range" min="0" max="100" step="5" value="70">
-        </label>
+        <div class="volume-row">
+          <label for="volumeSlider">Volume<small>Master loudness</small></label>
+          <input id="volumeSlider" type="range" min="0" max="100" step="5" value="70" aria-label="Master volume">
+        </div>
       </section>
 
       <section class="settings-group">
-        <h3 class="settings-heading">Data</h3>
+        <h3 class="settings-heading"><span class="settings-heading-icon" aria-hidden="true">◇</span>Data Management</h3>
         <p class="save-status">Last saved: <span id="lastSavedText">just now</span></p>
         <div class="btn-row">
           <button id="saveNowBtn" class="action-btn" type="button">Save now</button>
-          <button id="exportBtn" class="action-btn" type="button">Export save</button>
-          <button id="importBtn" class="action-btn" type="button">Import save</button>
+          <button id="exportBtn" class="action-btn" type="button">Export</button>
+          <button id="importBtn" class="action-btn" type="button">Import</button>
         </div>
         <button id="resetBtn" class="danger-btn" type="button">Reset all progress…</button>
         <p class="settings-note">Reset wipes active progress (including prestige layers) but keeps interface preferences and save slots.</p>
       </section>
 
       <section class="settings-group">
-        <h3 class="settings-heading">Save slots</h3>
+        <h3 class="settings-heading"><span class="settings-heading-icon" aria-hidden="true">▤</span>Save Slots</h3>
         <p class="settings-note">Manual local backups, separate from the autosave. Stored only in this browser.</p>
         <div id="slotList" class="slot-list"></div>
       </section>
 
       <section class="settings-group">
-        <h3 class="settings-heading">Keyboard shortcuts</h3>
+        <h3 class="settings-heading"><span class="settings-heading-icon" aria-hidden="true">⌨</span>Controls</h3>
         <ul class="shortcut-list">
           <li><kbd>Space</kbd><span>Activate the reactor</span></li>
           <li><kbd>B</kbd><span>Toggle Buy 1 / Buy Max</span></li>
