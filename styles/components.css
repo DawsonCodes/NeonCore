@@ -1622,6 +1622,14 @@ dialog::backdrop {
   padding-top: 0.4rem;
 }
 
+.copyright-line {
+  color: var(--text-faded);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+  margin-top: 0.2rem;
+}
+
 /* Save slots ---------------------------------------------------------------------------------- */
 .slot-list {
   display: grid;

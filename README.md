@@ -126,4 +126,6 @@ Deployed with **GitHub Pages** straight from the repository root — no build ou
 
 ## License
 
+© 2026 DawsonCodes
+
 [MIT](LICENSE)
